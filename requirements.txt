@@ -1,0 +1,9 @@
+google-generativeai
+langgraph
+langchain-google-genai
+pdfplumber
+requests
+python-dotenv
+streamlit
+sentence-transformers
+chromadb
