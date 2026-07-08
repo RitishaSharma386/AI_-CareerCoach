@@ -19,6 +19,7 @@ Responsibilities:
 
 from langgraph.graph import StateGraph
 from graph.state import AgentState
+from agent.agent_orchestrator import route
 
 builder = StateGraph(AgentState)
 
@@ -46,7 +47,15 @@ builder.add_node("roadmap",roadmap_node)
 builder.add_node("cover_letter",cover_letter_node)
 
 #Connect nodes:
-builder.add_edge("resume","jobs")
+builder.add_conditional_edges(
+    "resume",
+    route,
+    {
+        "jobs" : "jobs",
+        "roadmap": "roadmap",
+        "cover_letter": "cover_letter",
+    }
+)
 builder.add_edge("jobs","roadmap")
 builder.add_edge("roadmap","cover_letter")
 
@@ -57,11 +66,14 @@ builder.set_entry_point("resume")
 graph=builder.compile()
 
 
+if __name__ == "__main__":
+
 
 #------------------------------------
 #Dummy State
 #------------------------------------
-dummy_state = {
+
+  dummy_state = {
     "resume_text": "This is a sample resume",
     "resume_json": {},
     "skills": [],
@@ -72,9 +84,9 @@ dummy_state = {
     "skill_gaps": [],
     "roadmap": "",
     "cover_letter": "",
-    "user_intent": "find_jobs",
+    "user_intent": "Full analysis",
     "error": None
-}
+  }
 result = graph.invoke(dummy_state)
 print(result)
 
