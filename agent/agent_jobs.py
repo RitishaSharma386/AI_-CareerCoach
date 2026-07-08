@@ -1,3 +1,7 @@
-#def run(state):
-#   print("Job Agent Placeholder")
-#   return state
+def run(state):
+
+    print("Jobs Agent Running")
+
+    state["job_listings"] = ["ML Engineer"]
+
+    return state

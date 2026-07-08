@@ -29,20 +29,44 @@ builder = StateGraph(AgentState)
 
 #Nodes:
 def resume_node(state: AgentState):
-    return agent_resume.run(state)
 
-def job_node(state: AgentState):
-    return agent_jobs.run(state)
+    updated_state = agent_resume.run(state)
+
+    print("\n========== After Resume Node ==========")
+    print(updated_state)
+
+    return updated_state
+
+def jobs_node(state: AgentState):
+
+    updated_state = agent_jobs.run(state)
+
+    print("\n========== After Jobs Node ==========")
+    print(updated_state)
+
+    return updated_state
 
 def roadmap_node(state: AgentState):
-    return agent_roadmap.run(state)
+
+    updated_state = agent_roadmap.run(state)
+
+    print("\n========== After Roadmap Node ==========")
+    print(updated_state)
+
+    return updated_state
 
 def cover_letter_node(state: AgentState):
-    return agent_cover_letter.run(state)
+
+    updated_state = agent_cover_letter.run(state)
+
+    print("\n========== After Cover Letter Node ==========")
+    print(updated_state)
+
+    return updated_state
 
 #Register Nodes:
 builder.add_node("resume",resume_node)
-builder.add_node("jobs",job_node)
+builder.add_node("jobs",jobs_node)
 builder.add_node("roadmap",roadmap_node)
 builder.add_node("cover_letter",cover_letter_node)
 
@@ -74,10 +98,14 @@ if __name__ == "__main__":
 #------------------------------------
 
     dummy_state = {
-        "resume_text": "I know Python",
-        "user_intent": "jobs"
-    }
+    "resume_text": "I know Python",
+    "user_intent": "jobs",
+    "skills": [],
+    "job_listings": [],
+    "roadmap": "",
+    "cover_letter": ""
+}
 result = graph.invoke(dummy_state)
+
+print("\n========== Final State ==========")
 print(result)
-
-
