@@ -21,7 +21,7 @@ def extract_text(pdf_path: str) -> str:
     
 
 if __name__ == "__main__":
-    pdf_file = "path/to/resume.pdf"
+    pdf_file = input("Enter PDF path: ")
 
     try:
         extracted_text = extract_text(pdf_file)
