@@ -1,6 +1,5 @@
-google-generativeai
+openai
 langgraph
-langchain-google-genai
 pdfplumber
 requests
 python-dotenv
