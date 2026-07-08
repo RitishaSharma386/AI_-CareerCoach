@@ -20,25 +20,25 @@ Responsibilities:
 from langgraph.graph import StateGraph
 from graph.state import AgentState
 from agent.agent_orchestrator import route
+import agent.agent_resume as agent_resume
+import agent.agent_jobs as agent_jobs
+import agent.agent_roadmap as agent_roadmap
+import agent.agent_cover_letter as agent_cover_letter
 
 builder = StateGraph(AgentState)
 
 #Nodes:
 def resume_node(state: AgentState):
-    print("Resume node executed")
-    return state
+    return agent_resume.run(state)
 
 def job_node(state: AgentState):
-    print("Job node executed")
-    return state
+    return agent_jobs.run(state)
 
 def roadmap_node(state: AgentState):
-    print("Roadmap node executed")
-    return state
+    return agent_roadmap.run(state)
 
 def cover_letter_node(state: AgentState):
-    print("Cover letter node executed")
-    return state
+    return agent_cover_letter.run(state)
 
 #Register Nodes:
 builder.add_node("resume",resume_node)
@@ -73,20 +73,10 @@ if __name__ == "__main__":
 #Dummy State
 #------------------------------------
 
-  dummy_state = {
-    "resume_text": "This is a sample resume",
-    "resume_json": {},
-    "skills": [],
-    "target_role": "ML Engineer",
-    "raw_job_listings": [],
-    "retrieved_chunks": [],
-    "job_listings": [],
-    "skill_gaps": [],
-    "roadmap": "",
-    "cover_letter": "",
-    "user_intent": "Full analysis",
-    "error": None
-  }
+    dummy_state = {
+        "resume_text": "I know Python",
+        "user_intent": "jobs"
+    }
 result = graph.invoke(dummy_state)
 print(result)
 
