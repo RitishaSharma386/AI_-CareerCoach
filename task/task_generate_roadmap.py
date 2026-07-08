@@ -6,7 +6,7 @@ Function: Generates a 4-week personalized learning roadmap using Gemini API.
           from prompts/prompt_roadmap.txt for easy iteration.
 Location: task/ folder — called by agent/agent_roadmap.py.
 """
-from tool.tool_gemini_client import get_model
+from tool.tool_llm_client import get_model
 def generate_roadmap(target_role:str , skill_gaps: list ) -> str:
     model = get_model()
     prompt = f"""
