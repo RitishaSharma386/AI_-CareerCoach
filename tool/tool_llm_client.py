@@ -18,4 +18,3 @@ def get_model():
         base_url="https://openrouter.ai/api/v1"
     )
     return client
-
