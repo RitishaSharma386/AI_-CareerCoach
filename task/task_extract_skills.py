@@ -13,7 +13,6 @@ from tool.tool_llm_client import get_model
 from sentence_transformers import SentenceTransformer
 from graph.state import EMBEDDING_MODEL
 
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 
 # Clean and validate the LLM response before using it further
@@ -81,7 +80,7 @@ def generate_resume_embedding(skills: list) -> list:
     # Create a query that represents the candidate's skillset
     query = f"Job requiring: {', '.join(skills)}"
 
-    # Temporary model name until shared state is available
+    # Load the shared embedding model used across resume and job embeddings
     model = SentenceTransformer(EMBEDDING_MODEL)
 
     # Convert the query into an embedding vector
