@@ -90,22 +90,22 @@ builder.set_entry_point("resume")
 graph=builder.compile()
 
 
-if __name__ == "__main__":
 
 
-#------------------------------------
-#Dummy State
-#------------------------------------
 
-    dummy_state = {
-    "resume_text": "I know Python",
-    "user_intent": "jobs",
-    "skills": [],
-    "job_listings": [],
-    "roadmap": "",
-    "cover_letter": ""
-}
-result = graph.invoke(dummy_state)
+# ------------------------------------
+# Dummy State
+# ------------------------------------
 
-print("\n========== Final State ==========")
-print(result)
+# dummy_state = {
+#"resume_text": "I know Python",
+#"user_intent": "jobs",
+#"skills": [],
+#"job_listings": [],
+#"roadmap": "",
+#"cover_letter": ""
+#}
+#result = graph.invoke(dummy_state)
+
+#print("\n========== Final State ==========")
+#print(result)
