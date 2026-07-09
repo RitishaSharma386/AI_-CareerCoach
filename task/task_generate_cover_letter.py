@@ -15,7 +15,7 @@ def generate_cover_letter(
     job_description: str,
     job_title: str
 ) -> str:
-    model = get_model()
+    client = get_model()
 
     prompt = f"""
 Generate a cover letter for my resume: {resume_json}.
@@ -26,14 +26,18 @@ Job Description: {job_description}
 
 Instructions:
 - Do not exceed 300 words.
-- Do not start with "I am writing to apply".
 - Do not use phrases like "I am passionate about" or "I am a team player".
 - Mention 2-3 specific matching skills from the resume.
+- Do not open with any variation of "I am writing to apply" or "I am excited to apply/submit" 
+— open with a specific, concrete skill or achievement instead.
 """
 
-    response = model.generate_content(prompt)
+    response = client.chat.completions.create(
+    model="openrouter/free",
+    messages=[{"role": "user", "content": prompt}]
+)
 
-    return response.text
+    return response.choices[0].message.content
 
 
 if __name__ == "__main__":
@@ -48,9 +52,9 @@ if __name__ == "__main__":
 
     result = generate_cover_letter(
         resume_json=mock_resume,
-        company="...",
-        job_title="...",
-        job_description="...",
+        company="Google",
+        job_title="AI engineer",
+        job_description="Manage Google Gemini's Models",
     )
 
     print(result)
