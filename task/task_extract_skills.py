@@ -11,6 +11,7 @@ Location: task/ folder — called by agent/agent_resume.py.
 import json
 from tool.tool_llm_client import get_model
 from sentence_transformers import SentenceTransformer
+from graph.state import EMBEDDING_MODEL
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
