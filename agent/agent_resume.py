@@ -23,7 +23,7 @@ def process_resume(pdf_path: str) -> dict:
 def run(state: dict) -> dict:
 
     # Extract structured information from resume text
-    resume_data = extract_resume_info(state["resume_txt"])
+    resume_data = extract_resume_info(state["resume_text"])
 
     # Get skills from extracted resume JSON
     skills = resume_data.get("skills", [])
