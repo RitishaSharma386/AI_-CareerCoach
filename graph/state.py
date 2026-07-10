@@ -11,9 +11,10 @@ from typing import TypedDict, Optional
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # M2 and M3 both import this constant
 
 class AgentState(TypedDict):
-    resume_txt: str
+    resume_text: str
     resume_json: dict
     skills: list
+    resume_embedding : list
     target_role: str
     raw_job_listings: list      # raw JSearch results → saved to data/rawFolder/
     retrieved_chunks: list      # top-k semantic retrieval output
