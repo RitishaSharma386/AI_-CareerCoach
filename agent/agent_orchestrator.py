@@ -1,32 +1,54 @@
 """
 File: agent_orchestrator.py
 
+Owner: Member 1 - Ritisha
+
 Purpose:
-Routes the workflow based on the user's intent.
+Contains the routing logic for the AI Career Coach workflow.
 
 Responsibilities:
-- Reads the user's intent from AgentState.
-- Decides which node should execute next.
-- Returns the next node name to LangGraph.
-
-Owner: Member 1- Ritisha(orchestrator)
+- Checks if an error occurred during graph execution.
+- Routes the workflow based on the user's intent.
+- Returns the name of the next node for LangGraph.
 """
 
 from graph.state import AgentState
 
-#Creating Route function
-def route(state: AgentState) -> str :
-    intent= state["user_intent"].lower()
-    if "job" in intent:
+
+def route(state: AgentState) -> str:
+    """
+    Determines the next node in the workflow.
+
+    Priority:
+    1. If an error exists, stop the workflow.
+    2. Otherwise, route according to the user's intent.
+
+    Args:
+        state: Current shared AgentState.
+
+    Returns:
+        str: Name of the next node ("jobs", "roadmap",
+             "cover_letter", or "end").
+    """
+
+    # Stop the workflow if any error has occurred
+    if state["error"] is not None:
+        return "end"
+
+    # Read the user's intent
+    intent = state["user_intent"]
+
+    # Route based on intent
+    if intent == "jobs":
         return "jobs"
-    elif "roadmap" in intent:
+
+    elif intent == "roadmap":
         return "roadmap"
-    elif "cover" in intent:
+
+    elif intent == "cover_letter":
         return "cover_letter"
-    elif "full" in intent:
-        return "jobs"
+
+    # Invalid intent
     else:
-        raise ValueError("Unknown user intent")
-    #else:
-        return "jobs"
-    
+        state["error"] = f"Invalid user intent: {intent}"
+        return "end"
