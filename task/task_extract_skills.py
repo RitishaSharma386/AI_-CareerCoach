@@ -15,19 +15,20 @@ from graph.state import EMBEDDING_MODEL
 
 
 
-# Clean and validate the LLM response before using it further
+# Handles different response formats returned by the LLM and prepares clean JSON output
 def clean_json(raw_response: str) -> dict:
 
-    # Remove markdown formatting if the model wraps JSON inside ```json
+    # Remove markdown wrappers if LLM returns JSON inside code blocks
     clean_response = raw_response.replace("```json", "")
     clean_response = clean_response.replace("```", "")
     clean_response = clean_response.strip()
 
     try:
+        # Convert string response into Python dictionary
         data = json.loads(clean_response)
 
     except Exception:
-        # Return default structure if LLM response is not valid JSON
+        # Return default structure when response cannot be parsed
         return {
             "name": "",
             "skills": [],
@@ -38,7 +39,7 @@ def clean_json(raw_response: str) -> dict:
         }
 
 
-    # Ensure all required fields are present
+    # Add missing fields to maintain a consistent resume JSON structure
     required_keys = [
         "name",
         "skills",
@@ -59,7 +60,7 @@ def clean_json(raw_response: str) -> dict:
                 data[key] = ""
 
 
-    # Sometimes LLM returns skills as a string instead of a list
+    # Convert skills string into list format if LLM returns comma-separated skills
     if isinstance(data["skills"], str):
         data["skills"] = [
             skill.strip()
@@ -70,26 +71,27 @@ def clean_json(raw_response: str) -> dict:
     return data
 
 
-# Generate an embedding from the extracted skills for resume matching
+# Creates embedding vector from resume skills for similarity matching
 def generate_resume_embedding(skills: list) -> list:
 
-    # Return an empty embedding if no skills are available
+    # No embedding is generated if skills are unavailable
     if not skills:
         return []
 
-    # Create a query that represents the candidate's skillset
+    # Convert skills into a query format similar to job requirements
     query = f"Job requiring: {', '.join(skills)}"
 
-    # Load the shared embedding model used across resume and job embeddings
+    # Use the shared embedding model used by resume and job retrieval pipeline
     model = SentenceTransformer(EMBEDDING_MODEL)
 
-    # Convert the query into an embedding vector
+    # Encode the query into numerical vector representation
     embedding = model.encode(query)
 
     return embedding.tolist()
 
 
 def extract_resume_info(raw_text: str) -> dict:
+    # Initialize LLM client for resume information extraction
     model = get_model()
 
     prompt = f"""
@@ -115,6 +117,7 @@ Resume text:
 """
 
     try:
+        # Send resume text to LLM and get structured response
         response = model.chat.completions.create(
             model="openai/gpt-oss-20b:free",
             messages=[
@@ -125,7 +128,7 @@ Resume text:
             ]
         )
 
-        # Clean the LLM response and convert it into structured JSON
+        # Validate and clean LLM output before returning
         resume_data = clean_json(
             response.choices[0].message.content
         )
