@@ -53,8 +53,8 @@ def resume_node(state: AgentState):
 
     try:
         updated_state = agent_resume.run(state)
-        print("\n===== After Resume Node =====")
-        print(updated_state)
+        # print("\n===== After Resume Node =====")
+        # print(updated_state)
 
         return updated_state
 
@@ -68,8 +68,8 @@ def jobs_node(state: AgentState):
 
     try:
         updated_state = agent_jobs.run(state)
-        print("\n===== After Job Node =====")
-        print(updated_state)
+        # print("\n===== After Job Node =====")
+        # print(updated_state)
 
         return updated_state
 
@@ -83,8 +83,8 @@ def roadmap_node(state: AgentState):
 
     try:
         updated_state = agent_roadmap.run(state)
-        print("\n===== After Roadmap Node =====")
-        print(updated_state)
+        # print("\n===== After Roadmap Node =====")
+        # print(updated_state)
 
         return updated_state
 
@@ -98,8 +98,8 @@ def cover_letter_node(state: AgentState):
 
     try:
         updated_state = agent_cover_letter.run(state)
-        print("\n===== After Cover Letter Node =====")
-        print(updated_state)
+        # print("\n===== After Cover Letter Node =====")
+        # print(updated_state)
 
         return updated_state
 

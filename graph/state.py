@@ -11,6 +11,7 @@ from typing import TypedDict, Optional
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # M2 and M3 both import this constant
 
 class AgentState(TypedDict):
+    
     resume_text: str
     resume_json: dict
     skills: list
@@ -22,6 +23,7 @@ class AgentState(TypedDict):
     skill_gaps: list
     roadmap: str
     cover_letter: str
+    user_query: str 
     user_intent: str
     error: Optional[str]
     
