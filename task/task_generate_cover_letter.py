@@ -30,6 +30,9 @@ Instructions:
 - Mention 2-3 specific matching skills from the resume.
 - Do not open with any variation of "I am writing to apply" or "I am excited to apply/submit" 
 — open with a specific, concrete skill or achievement instead.
+- Do not invent metrics, percentages, or outcomes that are not stated in the input.
+-Always include a professional greeting (e.g., "Dear Hiring Manager,")
+ at the start and a sign-off with the candidate's name at the end.
 """
 
     response = client.chat.completions.create(
