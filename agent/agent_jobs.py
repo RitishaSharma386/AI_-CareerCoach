@@ -1,15 +1,6 @@
-<<<<<<< HEAD
-# def run(state):
-
-#     print("Jobs Agent Running")
-
-#     state["job_listings"] = ["ML Engineer"]
-
-#     return state
-=======
 """
 File: agent/agent_jobs.py
-Owner: Member 3 (Job Matching + RAG Pipeline)
+Owner: Member 3 Priyanshi Saini
 Function: Orchestrates the full RAG pipeline for job matching. Called by
           graph/graph.py's jobs_node. Reads state["skills"], state["target_role"],
           and state["resume_embedding"] (all produced by Member 2's resume
@@ -180,4 +171,4 @@ if __name__ == "__main__":
     for job in result.get("job_listings", []) or []:
         overlap = input_skills.intersection(job.get("matched_skills", []))
         print(f"Spot check — '{job.get('job_title')}': matched_skills overlap with input skills = {overlap or 'NONE'}")
->>>>>>> feature/m3-rag-pipeline
+
