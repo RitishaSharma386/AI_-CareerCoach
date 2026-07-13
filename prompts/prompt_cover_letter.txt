@@ -1,5 +1,7 @@
 
 
+
+
 prompt = f"""
 Generate a cover letter for my resume: {resume_json}.
 

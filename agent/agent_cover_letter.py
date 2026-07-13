@@ -1,3 +1,10 @@
+# def run(state):
+
+#     print("Cover Letter Agent Running")
+
+#     state["cover_letter"] = "Dummy Cover Letter"
+
+#     return state
 """
 File: agent/agent_cover_letter.py
 Owner: Member 4 — Shraddha Tyagi
