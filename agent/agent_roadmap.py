@@ -19,14 +19,18 @@ def run(state: dict) -> dict:
 
     Returns:
         dict with a single key "roadmap" containing the generated plan.
+        If skill_gaps is empty, returns a friendly "already matches" message.
         On failure, returns {"roadmap": None, "error": "<message>"} instead
         of crashing the whole graph.
     """
     target_role = state.get("target_role", "")
     skill_gaps = state.get("skill_gaps", [])
 
-    if not target_role or not skill_gaps:
-        return {"roadmap": None, "error": "Missing target_role or skill_gaps in state"}
+    if not skill_gaps:
+        return {"roadmap": "Your profile already matches this role well!"}
+
+    if not target_role:
+        return {"roadmap": None, "error": "Missing target_role in state"}
 
     try:
         roadmap = generate_roadmap(target_role, skill_gaps)
@@ -42,11 +46,3 @@ if __name__ == "__main__":
     }
     result = run(mock_state)
     print(result)
-    
-# def run(state):
-
-#     print("Roadmap Agent Running")
-
-#     state["roadmap"] = "Learn Docker"
-
-#     return state

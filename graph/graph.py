@@ -137,26 +137,23 @@ graph=builder.compile()
 
 
 
-
-# ------------------------------------
-# Dummy State
-# ------------------------------------
-
-# dummy_state = {
-#     "resume_text": "I know Python",
-#     "resume_json": {},
-#     "skills": [],
-#     "resume_embedding": [],
-#     "target_role": "",
-#     "raw_job_listings": [],
-#     "retrieved_chunks": [],
-#     "job_listings": [],
-#     "skill_gaps": [],
-#     "roadmap": "",
-#     "cover_letter": "",
-#     "user_intent": "jobs",
-#     "error": None
-# }
-# result = graph.invoke(dummy_state)
-# print("\n========== Final State ==========") 
-# print(result)
+if __name__ == "__main__":
+    dummy_state = {
+        "resume_text": "I know Python",
+        "resume_json": {},
+        "skills": [],
+        "resume_embedding": [],
+        "target_role": "",
+        "raw_job_listings": [],
+        "retrieved_chunks": [],
+        "job_listings": [],
+        "skill_gaps": [],
+        "roadmap": "",
+        "cover_letter": "",
+        "user_query": "Give me a roadmap to become a data scientist",
+        "user_intent": "",
+        "error": None,
+    }
+    result = graph.invoke(dummy_state)
+    print("\n========== Final State ==========")
+    print(result)

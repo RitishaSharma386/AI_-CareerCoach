@@ -1,10 +1,3 @@
-# def run(state):
-
-#     print("Cover Letter Agent Running")
-
-#     state["cover_letter"] = "Dummy Cover Letter"
-
-#     return state
 """
 File: agent/agent_cover_letter.py
 Owner: Member 4 — Shraddha Tyagi
@@ -28,7 +21,8 @@ def run(state: dict) -> dict:
 
     Returns:
         dict with a single key "cover_letter" containing the generated letter.
-        On failure, returns {"cover_letter": None, "error": "<message>"}.
+        If job_description is under 50 words, skips generation and returns
+        an error instead. On failure, returns {"cover_letter": None, "error": "<message>"}.
     """
     resume_json = state.get("resume_json", {})
     job_listings = state.get("job_listings", [])
@@ -37,12 +31,16 @@ def run(state: dict) -> dict:
         return {"cover_letter": None, "error": "Missing resume_json or job_listings in state"}
 
     job = job_listings[0]  # picks the first job in the list
+    job_description = job.get("job_description", "")
+
+    if len(job_description.split()) < 50:
+        return {"cover_letter": None, "error": "Job description too short to generate a meaningful cover letter."}
 
     try:
         cover_letter = generate_cover_letter(
             resume_json=resume_json,
             company=job.get("company", ""),
-            job_description=job.get("job_description", ""),
+            job_description=job_description,
             job_title=job.get("job_title", ""),
         )
         return {"cover_letter": cover_letter}
@@ -64,7 +62,12 @@ if __name__ == "__main__":
             {
                 "company": "Google",
                 "job_title": "AI Engineer",
-                "job_description": "Work on Gemini model infrastructure...",
+                "job_description": (
+                    "Work on Gemini model infrastructure and scalable ML systems. "
+                    "Requires strong Python, distributed systems experience, and "
+                    "familiarity with large-scale data pipelines and model serving "
+                    "infrastructure for production AI workloads across global users."
+                ),
             }
         ],
     }
