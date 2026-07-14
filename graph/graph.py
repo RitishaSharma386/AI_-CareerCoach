@@ -22,18 +22,19 @@ START
 Resume
    │
 Conditional Routing
- ┌──────────┬──────────────┬───────────────┐
- │          │              │
-Jobs    Roadmap     Cover Letter
+ ┌──────────────┬──────────────┬────────────────┐
+ │              │              │
+ ▼              ▼              ▼
+Jobs        Roadmap     Cover Letter
+ │              │              │
+ ▼              ▼              ▼
+(Continue?) (Continue?)       END
  │
- ▼
-Roadmap
- │
- ▼
-Cover Letter
- │
- ▼
-END
+ ├── Yes → Next Node
+ └── No  → END
+
+Full Analysis:
+Jobs → Roadmap → Cover Letter → END
 """
 
 
@@ -53,8 +54,8 @@ def resume_node(state: AgentState):
 
     try:
         updated_state = agent_resume.run(state)
-        print("\n===== After Resume Node =====")
-        print(updated_state)
+        # print("\n===== After Resume Node =====")
+        # print(updated_state)
 
         return updated_state
 
@@ -68,8 +69,8 @@ def jobs_node(state: AgentState):
 
     try:
         updated_state = agent_jobs.run(state)
-        print("\n===== After Job Node =====")
-        print(updated_state)
+        # print("\n===== After Job Node =====")
+        # print(updated_state)
 
         return updated_state
 
@@ -83,8 +84,8 @@ def roadmap_node(state: AgentState):
 
     try:
         updated_state = agent_roadmap.run(state)
-        print("\n===== After Roadmap Node =====")
-        print(updated_state)
+        # print("\n===== After Roadmap Node =====")
+        # print(updated_state)
 
         return updated_state
 
@@ -98,8 +99,8 @@ def cover_letter_node(state: AgentState):
 
     try:
         updated_state = agent_cover_letter.run(state)
-        print("\n===== After Cover Letter Node =====")
-        print(updated_state)
+        # print("\n===== After Cover Letter Node =====")
+        # print(updated_state)
 
         return updated_state
 
@@ -107,12 +108,36 @@ def cover_letter_node(state: AgentState):
         state["error"] = str(e)
         print("Cover Letter Node Error:", e)
         return state
+    
 
+
+
+    
 #Register Nodes:
 builder.add_node("resume",resume_node)
 builder.add_node("jobs",jobs_node)
 builder.add_node("roadmap",roadmap_node)
 builder.add_node("cover_letter",cover_letter_node)
+
+def after_jobs(state: AgentState):
+    """
+    Determines the next step after the Jobs node.
+    Continue only for full analysis.
+    """
+    if state["user_intent"] == "full_analysis":
+        return "roadmap"
+    return "end"
+
+
+def after_roadmap(state: AgentState):
+    """
+    Determines the next step after the Roadmap node.
+    Continue only for full analysis.
+    """
+    if state["user_intent"] == "full_analysis":
+        return "cover_letter"
+    return "end"
+
 
 #Connect nodes:
 builder.add_conditional_edges(
@@ -125,14 +150,33 @@ builder.add_conditional_edges(
         "end": END    
     }
 )
-builder.add_edge("jobs","roadmap")
-builder.add_edge("roadmap","cover_letter")
+
+builder.add_conditional_edges(
+    "jobs",
+    after_jobs,
+    {
+        "roadmap": "roadmap",
+        "end": END,
+    }
+)
+
+builder.add_conditional_edges(
+    "roadmap",
+    after_roadmap,
+    {
+        "cover_letter": "cover_letter",
+        "end": END,
+    }
+)
+
+builder.add_edge("cover_letter", END)
 
 #Entry point:
 builder.set_entry_point("resume")
 
 #Compile graph
 graph=builder.compile()
+
 
 
 
