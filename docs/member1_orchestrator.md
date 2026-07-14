@@ -2,23 +2,21 @@
 
 ## Overview
 
-The orchestrator is responsible for deciding which agent should execute based on the user's request.
+The orchestrator is responsible for controlling the execution flow of the AI Career Coach.
 
-Instead of using fixed keyword matching, the project uses an LLM (OpenRouter) to classify the user's intent.
+It uses OpenRouter to classify the user's intent and LangGraph to execute the appropriate workflow.
 
 ---
 
-## Workflow
+## Components
 
-User Query
-↓
-OpenRouter Intent Classifier
-↓
-Intent Prediction
-↓
-LangGraph Route
-↓
-Execute Agent
+- OpenRouter (Intent Classification)
+- LangGraph
+- Shared AgentState
+- Resume Agent
+- Jobs Agent
+- Roadmap Agent
+- Cover Letter Agent
 
 ---
 
@@ -33,30 +31,48 @@ Execute Agent
 
 ## Routing Logic
 
-| Intent | Next Node |
-|---------|-----------|
-| find_jobs | jobs |
-| get_roadmap | roadmap |
-| write_cover_letter | cover_letter |
-| full_analysis | jobs → roadmap → cover_letter |
+The Resume node is the entry point of the graph.
+
+The orchestrator classifies the user's request into one of four intents.
+
+| Intent | Workflow |
+|---------|----------|
+| find_jobs | Resume → Jobs |
+| get_roadmap | Resume → Roadmap |
+| write_cover_letter | Resume → Cover Letter |
+| full_analysis | Resume → Jobs → Roadmap → Cover Letter |
+
+---
+
+## Conditional Routing
+
+After the Jobs node:
+
+- If intent is **full_analysis**, continue to Roadmap.
+- Otherwise, terminate the workflow.
+
+After the Roadmap node:
+
+- If intent is **full_analysis**, continue to Cover Letter.
+- Otherwise, terminate the workflow.
 
 ---
 
 ## Error Handling
 
-If an invalid intent is returned, the workflow stores the error in `state["error"]` and routes to `END`.
+If an error is present in AgentState:
+
+- Graph immediately routes to END.
+
+If OpenRouter fails:
+
+- Keyword-based routing is used.
 
 ---
 
-## Fallback Mechanism
+## Technologies
 
-If the LLM returns an unexpected response, keyword-based routing is used as a backup.
-
----
-
-## Technologies Used
-
+- Python
 - LangGraph
 - OpenRouter
 - GPT-OSS-20B
-- Python

@@ -22,18 +22,19 @@ START
 Resume
    │
 Conditional Routing
- ┌──────────┬──────────────┬───────────────┐
- │          │              │
-Jobs    Roadmap     Cover Letter
+ ┌──────────────┬──────────────┬────────────────┐
+ │              │              │
+ ▼              ▼              ▼
+Jobs        Roadmap     Cover Letter
+ │              │              │
+ ▼              ▼              ▼
+(Continue?) (Continue?)       END
  │
- ▼
-Roadmap
- │
- ▼
-Cover Letter
- │
- ▼
-END
+ ├── Yes → Next Node
+ └── No  → END
+
+Full Analysis:
+Jobs → Roadmap → Cover Letter → END
 """
 
 
@@ -107,12 +108,36 @@ def cover_letter_node(state: AgentState):
         state["error"] = str(e)
         print("Cover Letter Node Error:", e)
         return state
+    
 
+
+
+    
 #Register Nodes:
 builder.add_node("resume",resume_node)
 builder.add_node("jobs",jobs_node)
 builder.add_node("roadmap",roadmap_node)
 builder.add_node("cover_letter",cover_letter_node)
+
+def after_jobs(state: AgentState):
+    """
+    Determines the next step after the Jobs node.
+    Continue only for full analysis.
+    """
+    if state["user_intent"] == "full_analysis":
+        return "roadmap"
+    return "end"
+
+
+def after_roadmap(state: AgentState):
+    """
+    Determines the next step after the Roadmap node.
+    Continue only for full analysis.
+    """
+    if state["user_intent"] == "full_analysis":
+        return "cover_letter"
+    return "end"
+
 
 #Connect nodes:
 builder.add_conditional_edges(
@@ -125,8 +150,26 @@ builder.add_conditional_edges(
         "end": END    
     }
 )
-builder.add_edge("jobs","roadmap")
-builder.add_edge("roadmap","cover_letter")
+
+builder.add_conditional_edges(
+    "jobs",
+    after_jobs,
+    {
+        "roadmap": "roadmap",
+        "end": END,
+    }
+)
+
+builder.add_conditional_edges(
+    "roadmap",
+    after_roadmap,
+    {
+        "cover_letter": "cover_letter",
+        "end": END,
+    }
+)
+
+builder.add_edge("cover_letter", END)
 
 #Entry point:
 builder.set_entry_point("resume")
@@ -137,23 +180,27 @@ graph=builder.compile()
 
 
 
-if __name__ == "__main__":
-    dummy_state = {
-        "resume_text": "I know Python",
-        "resume_json": {},
-        "skills": [],
-        "resume_embedding": [],
-        "target_role": "",
-        "raw_job_listings": [],
-        "retrieved_chunks": [],
-        "job_listings": [],
-        "skill_gaps": [],
-        "roadmap": "",
-        "cover_letter": "",
-        "user_query": "Give me a roadmap to become a data scientist",
-        "user_intent": "",
-        "error": None,
-    }
-    result = graph.invoke(dummy_state)
-    print("\n========== Final State ==========")
-    print(result)
+
+
+# ------------------------------------
+# Dummy State
+# ------------------------------------
+
+# dummy_state = {
+#     "resume_text": "I know Python",
+#     "resume_json": {},
+#     "skills": [],
+#     "resume_embedding": [],
+#     "target_role": "",
+#     "raw_job_listings": [],
+#     "retrieved_chunks": [],
+#     "job_listings": [],
+#     "skill_gaps": [],
+#     "roadmap": "",
+#     "cover_letter": "",
+#     "user_intent": "jobs",
+#     "error": None
+# }
+# result = graph.invoke(dummy_state)
+# print("\n========== Final State ==========") 
+# print(result)
