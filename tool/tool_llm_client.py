@@ -15,7 +15,8 @@ load_dotenv()
 def get_model():
     client = OpenAI(
         api_key=os.getenv("OPENROUTER_API_KEY"),
-        base_url="https://openrouter.ai/api/v1"
+        base_url="https://openrouter.ai/api/v1",
+        max_retries=3,
     )
     return client
 
