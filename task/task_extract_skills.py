@@ -103,6 +103,16 @@ Do not modify names, company names, university names, or other proper nouns.
 Verify extracted information carefully.
 Preserve exact spellings of names, skills, technologies, universities, and acronyms.
 If unsure, use the text exactly as provided and do not guess.
+If the resume already mentions a target role, extract that role.
+
+If the target role is not directly mentioned, try to identify the most suitable entry-level role based on the candidate's skills, projects, educational background, and technologies.
+
+For example:
+- A candidate with Python, C++, DSA, and software-related projects can be considered for a Software Engineer Intern role.
+- A candidate with Machine Learning, Python, and AI projects can be considered for a Machine Learning Engineer Intern role.
+- A candidate with HTML, CSS, and JavaScript skills can be considered for a Frontend Developer Intern role.
+
+Try to provide the most relevant role instead of leaving the target_role field empty when enough information is available.
 
 Return only JSON with these keys:
 name,

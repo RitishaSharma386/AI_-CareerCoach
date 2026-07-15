@@ -2,7 +2,8 @@
 File: tool/tool_pdf_parser.py
 Owner: Member 2 — Kashish Dhingra
 Function: Extracts raw text from uploaded PDF resumes using pdfplumber.
-          Handles multi-page documents. Raises error for image-based PDFs.
+          Handles multi-page documents.Warns when extracted text is too short and
+          the PDF may be image-based.
 Location: tool/ folder — called by task/task_extract_skills.py.
 """
 
@@ -18,9 +19,9 @@ def extract_text(pdf_path: str) -> str:
             page_text = page.extract_text()
             if page_text:
                 text += page_text + "\n"
-        # Detect scanned/image-based PDFs where text extraction fails
-        if len(text.strip()) < 100:
-            raise ValueError("PDF appears image-based")
+        # Warn if extracted text is less than 100 words (possible scanned/image PDF)
+        if len(text.split()) < 100:
+            print("Warning: PDF may be image-based")
         return text
     
 
