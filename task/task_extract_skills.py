@@ -66,6 +66,9 @@ def clean_json(raw_response: str) -> dict:
             skill.strip()
             for skill in data["skills"].split(",")
         ]
+    # Add fallback message when no skills are extracted
+    if not data["skills"]:
+        data["skills_message"] = "No technical skills could be extracted from the resume."
 
 
     return data

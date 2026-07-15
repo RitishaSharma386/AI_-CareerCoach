@@ -7,9 +7,19 @@ Function: Extracts raw text from uploaded PDF resumes using pdfplumber.
 Location: tool/ folder — called by task/task_extract_skills.py.
 """
 
+import os
 import pdfplumber
 
 def extract_text(pdf_path: str) -> str:
+
+    # Validate file type before attempting PDF parsing
+    if not pdf_path.lower().endswith(".pdf"):
+        raise ValueError("Only PDF resume files are supported.")
+
+    # Check whether file exists
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError("Resume file not found.")
+
     # Store extracted text from all pages of the resume
     text = ""
     # Open PDF and process each page individually

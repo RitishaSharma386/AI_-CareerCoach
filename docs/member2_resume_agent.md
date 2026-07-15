@@ -81,3 +81,69 @@ For example:
     "projects": [],
     "target_role": ""
 }
+```
+
+---
+
+# Known Limitations
+
+## Resume Text Extraction
+
+- The system works best with resumes written primarily in English.
+- Resumes containing multiple languages or complex formatting may not always be extracted accurately.
+- Image-based or scanned resumes may produce incomplete text extraction because OCR is not currently integrated.
+- PDF text encoding issues may cause minor spelling or formatting errors during extraction.
+
+---
+
+# Edge Cases Handled
+
+The following edge cases were handled in the Resume Agent:
+
+## Non-PDF Upload
+
+- Added a file type check before processing.
+- Only PDF resume files are accepted by the parser.
+
+## Empty Skills
+
+- Added a fallback message when no technical skills are extracted from the resume.
+
+## Missing Fields
+
+- Missing fields such as experience, education, projects, and target role are handled using default values to maintain the output format.
+
+## Mixed Language Resume
+
+- Resumes with multiple languages may not always be extracted correctly.
+- This is a known limitation of the current pipeline.
+
+---
+
+# Testing
+
+A test file `tests/test_agent_resume.py` was created to test the Resume Agent functionality.
+
+The following cases were tested:
+
+- Resume JSON structure
+- Empty skills handling
+- Skills format conversion
+- Missing fields handling
+- Target role extraction
+
+All test cases passed successfully.
+
+Command used:
+
+```bash
+python -m tests.test_agent_resume
+```
+
+Output:
+
+PASS: JSON structure test  
+PASS: Empty skills fallback test  
+PASS: Skills conversion test  
+PASS: Missing fields handling test  
+PASS: Target role test
