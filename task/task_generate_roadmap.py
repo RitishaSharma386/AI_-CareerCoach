@@ -19,11 +19,15 @@ def generate_roadmap(target_role:str , skill_gaps: list ) -> str:
     divide the Skill as 1-2 skills per week , asumming 2 hrs of learning daily.
     """
     response = client.chat.completions.create(
-    model="openai/gpt-oss-20b:free",
-    temperature=0,
-    messages=[{"role": "user", "content": prompt}]
-)
-    return response.choices[0].message.content
+        model="openai/gpt-oss-20b:free",
+        temperature=0,
+        max_tokens=1500,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("LLM returned an empty response")
+    return content
 
 if __name__ == "__main__":
     skill_gaps = ["Docker", "System Design", "SQL"]

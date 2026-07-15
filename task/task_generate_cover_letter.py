@@ -38,6 +38,7 @@ Instructions:
 
     response = client.chat.completions.create(
         model="openai/gpt-oss-20b:free",
+        max_tokens=1500,
         messages=[{"role": "user", "content": prompt}],
         temperature=0,
     )
