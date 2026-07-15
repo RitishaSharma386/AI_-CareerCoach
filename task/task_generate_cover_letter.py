@@ -1,0 +1,68 @@
+"""
+File: task/task_generate_cover_letter.py
+Owner: M4 - Shraddha Tyagi
+Function: Generate the cover letter by taking in the resume through parser and skills.
+It uses Gemini API and gives the response under 300 words.
+Location: task/
+"""
+
+from tool.tool_llm_client import get_model
+
+
+def generate_cover_letter(
+    resume_json: dict,
+    company: str,
+    job_description: str,
+    job_title: str
+) -> str:
+
+    client = get_model()
+
+    prompt = f"""
+Generate a cover letter for my resume: {resume_json}.
+
+Job Title: {job_title}
+Company: {company}
+Job Description: {job_description}
+
+Instructions:
+- Do not exceed 300 words.
+- Do not start with "I am writing to apply" or any similar generic opener like "I am excited to apply/submit" — open with a specific skill or achievement instead.
+- Do not use phrases like "I am passionate about" or "I am a team player".
+- Mention 2-3 specific matching skills from the resume.
+- Only reference skills, tools, technologies, metrics, and outcomes explicitly present in the resume JSON above. Do not invent specific 
+  technologies (e.g., Kubernetes, PyTorch, AWS), performance numbers, or achievements that are not stated in the input. If the resume only gives 
+  a project name without technical details, describe it using only the name and listed skills — do not guess at implementation details.
+- Always include a professional greeting (e.g., "Dear Hiring Manager,") at the start and a sign-off with the candidate's name at the end.
+"""
+
+    response = client.chat.completions.create(
+        model="openai/gpt-oss-20b:free",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,
+    )
+
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("LLM returned an empty response")
+    return content
+
+
+if __name__ == "__main__":
+    mock_resume = {
+        "name": "Riya",
+        "skills": ["Agentic AI", "Gen AI", "Data Science"],
+        "experience": "null",
+        "education": "B.Tech Computer Science",
+        "projects": ["Agentic AI Productivity Tracker"],
+        "target_role": "AI Engineer",
+    }
+
+    result = generate_cover_letter(
+        resume_json=mock_resume,
+        company="Google",
+        job_title="AI engineer",
+        job_description="Manage Google Gemini's Models",
+    )
+
+    print(result)
