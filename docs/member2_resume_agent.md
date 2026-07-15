@@ -147,3 +147,13 @@ PASS: Empty skills fallback test
 PASS: Skills conversion test  
 PASS: Missing fields handling test  
 PASS: Target role test
+
+## Final Testing
+
+The Resume Agent was tested on multiple resume formats including:
+- Single-column resumes
+- Two-column resumes
+- Image-heavy layouts
+- Table-formatted resumes
+
+The pipeline successfully extracted structured resume information including skills, education, projects, and target role.
