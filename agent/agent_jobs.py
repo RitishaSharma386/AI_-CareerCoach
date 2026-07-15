@@ -1,6 +1,6 @@
 """
 File: agent/agent_jobs.py
-Owner: Member 3 (Job Matching + RAG Pipeline)
+Owner: Member 3 Priyanshi Saini
 Function: Orchestrates the full RAG pipeline for job matching. Called by
           graph/graph.py's jobs_node. Reads state["skills"], state["target_role"],
           and state["resume_embedding"] (all produced by Member 2's resume

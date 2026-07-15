@@ -93,7 +93,7 @@ def search_jobs(target_role: str, location: str = "", num_pages: int = 1, use_ca
 
 
 if __name__ == "__main__":
-    test_role = "Software Engineer Intern"
+    test_role = "Data Analyst Intern"
     try:
         results = search_jobs(test_role, location="India")
         print(f"Fetched {len(results)} job listings for '{test_role}'")
