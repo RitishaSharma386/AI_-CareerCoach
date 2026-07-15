@@ -11,6 +11,7 @@ import os
 from dotenv import load_dotenv
 
 
+
 load_dotenv()
 
 def get_model():
@@ -19,3 +20,5 @@ def get_model():
         base_url="https://openrouter.ai/api/v1"
     )
     return client
+
+
