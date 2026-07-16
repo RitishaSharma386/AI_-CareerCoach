@@ -1,5 +1,14 @@
 """
 File: agent/agent_jobs.py
+<<<<<<< HEAD
+Owner: Member 3 - Priyanshi Saini
+Function: Orchestrates the full RAG pipeline: fetching jobs, embedding,
+          storing, and triggering the matching task. Also derives
+          state["skill_gaps"] (a flat, deduplicated list of missing
+          technical skills across all matched jobs) for Member 4's
+          roadmap agent, since this node runs immediately before it.
+Location: agent/ folder — called by graph/graph.py.
+=======
 Owner: Member 3 Priyanshi Saini
 Function: Orchestrates the full RAG pipeline for job matching. Called by
           graph/graph.py's jobs_node. Reads state["skills"], state["target_role"],
@@ -9,121 +18,100 @@ Function: Orchestrates the full RAG pipeline for job matching. Called by
           state["retrieved_chunks"], state["job_listings"], and
           state["skill_gaps"] back onto the shared AgentState.
 Location: agent/ folder — registered as a node in graph/graph.py.
+>>>>>>> c5e5a4136591896740f92429145736f39eb90a0a
 """
 
-from collections import Counter
+from graph.state import AgentState
+from tool import tool_jsearch
+from tool import tool_rag_pipeline
+from task import task_match_jobs
 
-from tool.tool_jsearch import search_jobs
-from tool.tool_rag_pipeline import embed_and_store, retrieve_top_k
-from task.task_match_jobs import match_jobs
+# Configuration for Retrieval
+# Adjust this value to 3, 5, or 8 to find the best tradeoff for your matching
+RETRIEVAL_K = 5
 
-
-def _derive_skill_gaps(job_listings: list, top_n: int = 5) -> list:
+def _derive_skill_gaps(matched_jobs: list) -> list:
     """
-    Aggregates missing_skills across all matched jobs and ranks them by how
-    often they show up — the more job listings that require a skill the
-    candidate doesn't have, the higher priority it is for the roadmap (M4
-    consumes this list directly).
+    Aggregates "missing_skills" across all matched jobs into a single flat,
+    deduplicated list of strings for Member 4's roadmap agent.
 
     Args:
-        job_listings: output of task_match_jobs.match_jobs()
-        top_n: max number of skill gaps to return
+        matched_jobs: List of job match dicts returned by
+            task_match_jobs.match_jobs(), each expected to contain a
+            "missing_skills" list.
 
     Returns:
-        list[str]: skill gaps ordered from most to least frequently missing.
+        list: Flat list of unique missing skill strings, order preserved
+              by first appearance. Returns an empty list if there are no
+              matched jobs or no missing skills anywhere.
     """
-    counter = Counter()
-    for job in job_listings:
-        for skill in job.get("missing_skills", []):
-            counter[skill] += 1
-    # most_common preserves insertion order for ties, which is fine here
-    return [skill for skill, _ in counter.most_common(top_n)]
+    seen = set()
+    skill_gaps = []
+
+    for job in matched_jobs:
+        if not isinstance(job, dict):
+            continue
+
+        missing = job.get("missing_skills", [])
+        if not isinstance(missing, list):
+            continue
+
+        for skill in missing:
+            if not isinstance(skill, str):
+                continue
+            normalized = skill.strip()
+            if normalized and normalized.lower() not in seen:
+                seen.add(normalized.lower())
+                skill_gaps.append(normalized)
+
+    return skill_gaps
 
 
-def run(state: dict) -> dict:
+def run(state: AgentState) -> AgentState:
     """
-    Runs the RAG job-matching pipeline and updates the shared AgentState.
+    Runs the jobs agent: fetches live job listings for the target role,
+    embeds and stores them in ChromaDB, retrieves the top-k listings most
+    semantically similar to the resume embedding, matches them against the
+    candidate's extracted skills, and derives the flat skill_gaps list
+    that Member 4's roadmap agent depends on.
 
-    Reads:
-        state["target_role"]: role to search for, e.g. "Software Engineer Intern"
-        state["skills"]: list of candidate skills (from Member 2)
-        state["resume_embedding"]: precomputed resume embedding vector (from Member 2)
-
-    Writes:
-        state["raw_job_listings"]: raw JSearch response
-        state["retrieved_chunks"]: top-k semantically retrieved job chunks
-        state["job_listings"]: Gemini/LLM-scored, ranked job matches
-        state["skill_gaps"]: aggregated missing technical skills, most-needed first
+    Args:
+        state: Current shared AgentState. Expects "target_role", "skills",
+            and "resume_embedding" to already be populated.
 
     Returns:
-        The updated state dict. On failure, sets state["error"] instead of
-        raising, so the LangGraph node wrapper in graph/graph.py can route to
-        END cleanly (per Member 1's error-handling convention).
+        AgentState: Updated state with "raw_job_listings", "retrieved_chunks",
+            "job_listings", and "skill_gaps" populated.
     """
-    print("Jobs Agent Running")
+    print(f"Jobs Agent Running (using K={RETRIEVAL_K})")
 
-    target_role = state.get("target_role")
-    skills = state.get("skills", [])
-    resume_embedding = state.get("resume_embedding")
+    target_role = state["target_role"]
 
-    # --- Confirm state["skills"] is actually coming through from M2 ---
-    # Cheap visibility check: if M2 hasn't run yet or wrote the wrong key,
-    # this will read as [] and you'll see it immediately in the logs instead
-    # of silently getting empty matched_skills three steps later.
-    print(f"[agent_jobs] state['skills'] read from M2: {skills}")
-    if not skills:
-        print("[agent_jobs] WARNING: state['skills'] is empty — did the resume "
-              "agent (M2) run before this node? match_jobs() will have nothing "
-              "to compare jobs against.")
+    # Step 1: Fetch job listings (cached if available, else live API call)
+    jobs = tool_jsearch.get_cached_or_fetch(target_role)
+    state["raw_job_listings"] = jobs
 
-    if not target_role:
-        state["error"] = "agent_jobs: state['target_role'] is missing."
-        return state
-    if not resume_embedding:
-        state["error"] = "agent_jobs: state['resume_embedding'] is missing — run the resume agent first."
-        return state
+    # Step 2: Embed and store job listings in ChromaDB
+    tool_rag_pipeline.embed_and_store(jobs)
 
-    # Step 1: fetch raw job listings (cached to data/rawFolder/)
-    raw_job_listings = search_jobs(target_role)
-    state["raw_job_listings"] = raw_job_listings
-
-    if not raw_job_listings:
-        state["error"] = f"agent_jobs: no job listings found for role '{target_role}'."
-        return state
-
-    # Steps 2-3: embed job descriptions and store them in ChromaDB
-    embed_and_store(raw_job_listings)
-
-    # Steps 4-5: use the resume embedding (from M2) as the query vector and
-    # retrieve the top-5 semantically similar jobs
-    retrieved_chunks = retrieve_top_k(resume_embedding, k=5)
-    state["retrieved_chunks"] = retrieved_chunks
-    print(f"[agent_jobs] state['retrieved_chunks'] written: {len(retrieved_chunks)} chunks")
-
-    if not retrieved_chunks:
-        state["error"] = "agent_jobs: retrieval returned no chunks from an empty collection."
-        return state
-
-    # Step 6: LLM reasons over the retrieved chunks against the user's skills
-    job_listings = match_jobs(skills, retrieved_chunks)
-    state["job_listings"] = job_listings
-    print(f"[agent_jobs] state['job_listings'] written: {len(job_listings)} scored jobs")
-
-    # Aggregate skill gaps across all matched jobs for the roadmap agent (M4)
-    skill_gaps = _derive_skill_gaps(job_listings)
-
-    # M4 consumes this as a flat list[str] (it gets dropped straight into an
-    # f-string prompt in task_generate_roadmap.py) — enforce that shape here
-    # rather than let a malformed list silently reach M4's prompt.
-    assert isinstance(skill_gaps, list) and all(isinstance(s, str) for s in skill_gaps), (
-        f"agent_jobs: skill_gaps must be a flat list[str] for M4, got: {skill_gaps!r}"
+    # Step 3: Retrieve top-k semantically similar jobs using the resume embedding
+    # The K value is controlled by the constant defined at the top of this agent
+    retrieved_chunks = tool_rag_pipeline.retrieve_top_k(
+        state["resume_embedding"], 
+        k=RETRIEVAL_K
     )
-    state["skill_gaps"] = skill_gaps
-    print(f"[agent_jobs] state['skill_gaps'] written (flat list[str]): {skill_gaps}")
+    state["retrieved_chunks"] = retrieved_chunks
 
+    # Step 4: Match retrieved jobs against the candidate's extracted skills
+    matched_jobs = task_match_jobs.match_jobs(state["skills"], retrieved_chunks)
+    state["job_listings"] = matched_jobs
+
+    # Step 5: Derive skill_gaps (flat list of strings) for Member 4's roadmap agent
+    state["skill_gaps"] = _derive_skill_gaps(matched_jobs)
+
+<<<<<<< HEAD
     return state
-
-
+=======
 if __name__ == "__main__":
     # Manual/independent test: run `python agent/agent_jobs.py` from the
     # project root. Requires JSEARCH_API_KEY and OPENROUTER_API_KEY in .env
@@ -172,3 +160,4 @@ if __name__ == "__main__":
         overlap = input_skills.intersection(job.get("matched_skills", []))
         print(f"Spot check — '{job.get('job_title')}': matched_skills overlap with input skills = {overlap or 'NONE'}")
 
+>>>>>>> c5e5a4136591896740f92429145736f39eb90a0a
