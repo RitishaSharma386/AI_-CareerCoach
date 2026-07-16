@@ -1,0 +1,66 @@
+[
+    {
+        "job_title": "Data Analyst - SQL Anywhere in India/Multiple Locations/Mumbai/Bangalore",
+        "company": "Reneassiance academy of wisdom",
+        "match_score": 9,
+        "matched_skills": [
+            "SQL",
+            "Excel",
+            "Tableau"
+        ],
+        "missing_skills": []
+    },
+    {
+        "job_title": "Data Analyst Technical Lead (Alteryx)",
+        "company": "Sopra Steria",
+        "match_score": 2,
+        "matched_skills": [],
+        "missing_skills": [
+            "Alteryx Designer",
+            "Alteryx Server",
+            "ETL",
+            "Oracle BI",
+            "Power BI"
+        ]
+    },
+    {
+        "job_title": "Sr. Data Analyst",
+        "company": "Weekday AI (YC W21)",
+        "match_score": 10,
+        "matched_skills": [
+            "SQL",
+            "Tableau",
+            "Excel",
+            "Pandas"
+        ],
+        "missing_skills": []
+    },
+    {
+        "job_title": "Data Scientist / Data Science Intern",
+        "company": "Nettech India",
+        "match_score": 7,
+        "matched_skills": [
+            "SQL",
+            "Excel",
+            "Tableau"
+        ],
+        "missing_skills": [
+            "Python",
+            "MySQL"
+        ]
+    },
+    {
+        "job_title": "Data Analyst",
+        "company": "DATAECONOMY",
+        "match_score": 8,
+        "matched_skills": [
+            "SQL",
+            "Excel",
+            "Tableau"
+        ],
+        "missing_skills": [
+            "Python",
+            "Snowflake"
+        ]
+    }
+]

@@ -19,7 +19,8 @@ def generate_roadmap(target_role:str , skill_gaps: list ) -> str:
     divide the Skill as 1-2 skills per week , asumming 2 hrs of learning daily.
     """
     response = client.chat.completions.create(
-    model="openrouter/free",
+    model="openai/gpt-oss-20b:free",
+    temperature=0,
     messages=[{"role": "user", "content": prompt}]
 )
     return response.choices[0].message.content

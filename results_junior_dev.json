@@ -1,0 +1,88 @@
+[
+    {
+        "job_title": "Software Engineer in Test",
+        "company": "ThoughtSpot",
+        "match_score": 2,
+        "matched_skills": [
+            "Python",
+            "Git"
+        ],
+        "missing_skills": [
+            "Locust/JMeter/Gatling/K6",
+            "API testing (REST)",
+            "CI/CD (Jenkins)",
+            "Observability tools (Grafana, Prometheus)",
+            "AI tooling (agents, LLMs)",
+            "Distributed systems knowledge",
+            "Cloud platforms (AWS/Azure/GCP)",
+            "Java or advanced Python scripting"
+        ]
+    },
+    {
+        "job_title": "Junior Software Engineer(java) -Trained Freshers to 1 year",
+        "company": "CareerBoard",
+        "match_score": 1,
+        "matched_skills": [
+            "Git"
+        ],
+        "missing_skills": [
+            "Java",
+            "Spring Boot",
+            "RESTful APIs",
+            "SQL",
+            "OOP concepts",
+            "Hibernate/JPA",
+            "Maven/Gradle",
+            "Agile development practices"
+        ]
+    },
+    {
+        "job_title": "Software Developer-Fresher",
+        "company": "WonderBiz Technologies Pvt.",
+        "match_score": 2,
+        "matched_skills": [
+            "HTML",
+            "CSS"
+        ],
+        "missing_skills": [
+            "C#",
+            "ASP.Net",
+            "TCP/IP",
+            "MVC",
+            "Web Services",
+            "WCF",
+            "JavaScript",
+            "jQuery",
+            "SQL Server",
+            ".Net Framework",
+            "OOPS",
+            "RDBMS"
+        ]
+    },
+    {
+        "job_title": "Junior Software Developer (Tech)",
+        "company": "HyScaler",
+        "match_score": 1,
+        "matched_skills": [
+            "Git"
+        ],
+        "missing_skills": []
+    },
+    {
+        "job_title": "Junior Software Developer (Python & JavaScript / Frappe/OODO ERP)",
+        "company": "Lemtos Technologies",
+        "match_score": 2,
+        "matched_skills": [
+            "Python",
+            "Git"
+        ],
+        "missing_skills": [
+            "JavaScript",
+            "React",
+            "REST APIs",
+            "PostgreSQL/MySQL",
+            "ERPNext/Frappe/Odoo",
+            "Performance optimization"
+        ]
+    }
+]

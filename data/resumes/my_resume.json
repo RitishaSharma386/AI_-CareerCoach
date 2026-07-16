@@ -1,0 +1,17 @@
+{
+  "name": "Priyanshi Saini",
+  "target_role": "Machine Learning Engineer",
+  "skills": [
+    "Python", "C/C++", "JavaScript", "AWS", "LangGraph", 
+    "Crew AI", "RAG", "Hugging Face", "LLMs", "DynamoDB", "Git"
+  ],
+  "experience": [
+    "Generative & Agentic AI Developer Summer Intern at Sansoftech",
+    "Technical Contributor at GSSOC",
+    "EquiLedger AI Project: AWS Lambda, Textract, Gemini API"
+  ],
+  "projects": [
+    "Fillora: Multimodal Agentic AI for form filling",
+    "EquiLedger AI: Serverless expense tracker"
+  ]
+}
