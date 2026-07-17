@@ -7,4 +7,19 @@
     Prioritize skills that are most commonly required in job listings first.
     divide the Skill as 1-2 skills per week , asumming 2 hrs of learning daily.
     """
-    
+
+    current prompt : (final prompt)
+
+    """
+    If i want to become {target_role} and my skill gaps are {skill_gaps}
+    provide a 4 week planner to the user with the platform names and the learning resources like coursera, youtube , upskill, cs50 etc.
+    no URLs, platform names only.
+    Give a structured Output in points for all the key tasks per week for each week like WEEK-1 ,WEEK-2, etc.
+    Consider Beginner Level.
+    Prioritize skills that are most commonly required in job listings first.
+    divide the Skill as 1-2 skills per week , asumming 2 hrs of learning daily.
+    For every single week, include a concrete mini-project or hands-on deliverable
+    (not just theory/reading tasks) that lets the learner practice that week's skill directly.
+    Break down each week into specific daily or task-level items, not just a single
+    high-level bullet per topic.
+    """

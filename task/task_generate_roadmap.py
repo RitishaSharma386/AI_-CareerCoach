@@ -7,7 +7,9 @@ Function: Generates a 4-week personalized learning roadmap using Gemini API.
 Location: task/ folder — called by agent/agent_roadmap.py.
 """
 from tool.tool_llm_client import get_model
-def generate_roadmap(target_role:str , skill_gaps: list ) -> str:
+
+
+def generate_roadmap(target_role: str, skill_gaps: list) -> str:
     client = get_model()
     prompt = f"""
     If i want to become {target_role} and my skill gaps are {skill_gaps}
@@ -17,13 +19,26 @@ def generate_roadmap(target_role:str , skill_gaps: list ) -> str:
     Consider Beginner Level.
     Prioritize skills that are most commonly required in job listings first.
     divide the Skill as 1-2 skills per week , asumming 2 hrs of learning daily.
+    For every single week, include a concrete mini-project or hands-on deliverable
+    (not just theory/reading tasks) that lets the learner practice that week's skill directly.
+    Break down each week into specific daily or task-level items, not just a single
+    high-level bullet per topic.
     """
-    response = client.chat.completions.create(
-    model="openai/gpt-oss-20b:free",
-    temperature=0,
-    messages=[{"role": "user", "content": prompt}]
-)
-    return response.choices[0].message.content
+
+    for attempt in range(2):
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-20b:free",
+            temperature=0,
+            max_tokens=3000,
+            extra_body={"reasoning": {"effort": "low"}},
+            messages=[{"role": "user", "content": prompt}]
+        )
+        content = response.choices[0].message.content
+        if content:
+            return content
+
+    raise ValueError("LLM returned an empty response after 2 attempts")
+
 
 if __name__ == "__main__":
     skill_gaps = ["Docker", "System Design", "SQL"]

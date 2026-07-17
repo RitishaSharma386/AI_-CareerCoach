@@ -34,18 +34,22 @@ Instructions:
   technologies (e.g., Kubernetes, PyTorch, AWS), performance numbers, or achievements that are not stated in the input. If the resume only gives 
   a project name without technical details, describe it using only the name and listed skills — do not guess at implementation details.
 - Always include a professional greeting (e.g., "Dear Hiring Manager,") at the start and a sign-off with the candidate's name at the end.
+- Always finish the letter completely, including the closing line and sign-off. Do not cut off mid-sentence.
 """
 
-    response = client.chat.completions.create(
-        model="openai/gpt-oss-20b:free",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0,
-    )
+    for attempt in range(2):
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-20b:free",
+            temperature=0,
+            max_tokens=3000,
+            extra_body={"reasoning": {"effort": "low"}},
+            messages=[{"role": "user", "content": prompt}],
+        )
+        content = response.choices[0].message.content
+        if content:
+            return content
 
-    content = response.choices[0].message.content
-    if not content:
-        raise ValueError("LLM returned an empty response")
-    return content
+    raise ValueError("LLM returned an empty response after 2 attempts")
 
 
 if __name__ == "__main__":
