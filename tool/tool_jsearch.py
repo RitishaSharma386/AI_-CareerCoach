@@ -59,7 +59,7 @@ def search_jobs(role: str, location: str = "India") -> list:
                     continue
         
     except Exception as e:
-        print(f"JSearch API request failed: {e}")
+        print(f"DEBUG: JSearch API Error: {str(e)}") # This will show you exactly what is failing
         return []
 
     _ensure_raw_folder()

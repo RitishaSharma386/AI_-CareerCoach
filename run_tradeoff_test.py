@@ -10,10 +10,11 @@ with open("data/resumes/my_resume.json", "r") as f:
 base_state = {
     "target_role": resume["target_role"],
     "skills": resume["skills"],
-    "resume_embedding": [0.1] * 384  # Use a dummy embedding for the test logic
+    "resume_embedding": [0.1] * 384
 }
 
 # 2. Run the test for different K values
+# Added the missing 'for' loop to iterate through K values
 for k_val in [3, 5, 8]:
     print(f"\n--- Testing K = {k_val} ---")
     
@@ -25,5 +26,5 @@ for k_val in [3, 5, 8]:
     
     # 3. Print the results for comparison
     print(f"Jobs found: {len(state['job_listings'])}")
-    for job in state['job_listings']:
-        print(f" - {job.get('job_title', 'N/A')}")
+    for job in state["job_listings"]:
+        print(f" - {job.get('job_title', 'N/A')}: Score = {job.get('match_score', 'N/A')}")
