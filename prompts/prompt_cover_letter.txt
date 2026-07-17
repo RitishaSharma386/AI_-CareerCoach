@@ -17,3 +17,24 @@ Instructions:
 - Only reference skills, tools, technologies, metrics, and outcomes explicitly present in the resume JSON above. Do not invent specific technologies (e.g., Kubernetes, PyTorch, AWS), performance numbers, or achievements that are not stated in the input. If the resume only gives a project name without technical details, describe it using only the name and listed skills — do not guess at implementation details.
 - Always include a professional greeting (e.g., "Dear Hiring Manager,") at the start and a sign-off with the candidate's name at the end.
 """
+
+
+current prompt: (final prompt)
+    prompt = f"""
+Generate a cover letter for my resume: {resume_json}.
+
+Job Title: {job_title}
+Company: {company}
+Job Description: {job_description}
+
+Instructions:
+- Do not exceed 300 words.
+- Do not start with "I am writing to apply" or any similar generic opener like "I am excited to apply/submit" — open with a specific skill or achievement instead.
+- Do not use phrases like "I am passionate about" or "I am a team player".
+- Mention 2-3 specific matching skills from the resume.
+- Only reference skills, tools, technologies, metrics, and outcomes explicitly present in the resume JSON above. Do not invent specific 
+  technologies (e.g., Kubernetes, PyTorch, AWS), performance numbers, or achievements that are not stated in the input. If the resume only gives 
+  a project name without technical details, describe it using only the name and listed skills — do not guess at implementation details.
+- Always include a professional greeting (e.g., "Dear Hiring Manager,") at the start and a sign-off with the candidate's name at the end.
+- Always finish the letter completely, including the closing line and sign-off. Do not cut off mid-sentence.
+"""

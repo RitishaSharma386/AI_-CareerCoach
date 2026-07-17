@@ -19,6 +19,10 @@ def generate_roadmap(target_role: str, skill_gaps: list) -> str:
     Consider Beginner Level.
     Prioritize skills that are most commonly required in job listings first.
     divide the Skill as 1-2 skills per week , asumming 2 hrs of learning daily.
+    For every single week, include a concrete mini-project or hands-on deliverable
+    (not just theory/reading tasks) that lets the learner practice that week's skill directly.
+    Break down each week into specific daily or task-level items, not just a single
+    high-level bullet per topic.
     """
 
     for attempt in range(2):
