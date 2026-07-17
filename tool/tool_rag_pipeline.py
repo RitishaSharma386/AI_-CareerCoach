@@ -1,10 +1,11 @@
 """
 File: tool/tool_rag_pipeline.py
-Owner: Member 3
+Owner: Member 3 - Priyanshi Saini
 Function: Implements the RAG pipeline for job matching.
 """
 
 import os
+import shutil
 import chromadb
 from sentence_transformers import SentenceTransformer
 from graph.state import EMBEDDING_MODEL
@@ -33,7 +34,17 @@ def _get_collection():
     if _collection is None:
         client = _get_client()
         _collection = client.get_or_create_collection(name=COLLECTION_NAME)
+        _collection = _chroma_client.get_or_create_collection(name="job_listings")
     return _collection
+
+def reset_database():
+    """Recursively deletes the data/processed directory."""
+    global _collection, _chroma_client
+    if os.path.exists(CHROMA_PATH):
+        shutil.rmtree(CHROMA_PATH)
+        print(f"reset_database: Deleted {CHROMA_PATH}")
+    _collection = None
+    _chroma_client = None
 
 def _build_job_text(job: dict) -> str:
     if not isinstance(job, dict): return ""
@@ -44,20 +55,24 @@ def _build_job_text(job: dict) -> str:
 
 def embed_and_store(job_listings: list, clear_existing: bool = True) -> int:
     if not job_listings or not isinstance(job_listings, list): return 0
+    
+    # Deduplicate by title
+    seen_titles = set()
+    unique_jobs = []
+    for job in job_listings:
+        title = (job.get("job_title") or job.get("title") or "").lower()
+        if title and title not in seen_titles:
+            seen_titles.add(title)
+            unique_jobs.append(job)
+
     if clear_existing:
-        global _collection
-        client = _get_client()
-        try:
-            client.delete_collection(name=COLLECTION_NAME)
-            _collection = None
-        except Exception: pass
+        reset_database()
 
     collection = _get_collection()
     encoder = _get_encoder()
     docs, metas, ids = [], [], []
 
-    for i, job in enumerate(job_listings):
-        if not isinstance(job, dict): continue
+    for i, job in enumerate(unique_jobs):
         docs.append(_build_job_text(job))
         metas.append({"title": job.get("job_title") or job.get("title") or ""})
         ids.append(str(i))
@@ -65,7 +80,7 @@ def embed_and_store(job_listings: list, clear_existing: bool = True) -> int:
     if docs:
         embeddings = encoder.encode(docs).tolist()
         collection.upsert(ids=ids, embeddings=embeddings, documents=docs, metadatas=metas)
-        print(f"embed_and_store: stored {len(ids)} job listings.")
+        print(f"embed_and_store: stored {len(ids)} unique job listings.")
     return len(ids)
 
 def retrieve_top_k(query_vector: list, k: int = 5) -> list:
@@ -80,7 +95,7 @@ def retrieve_top_k(query_vector: list, k: int = 5) -> list:
         print(f"retrieve_top_k failed: {e}")
         return []
     
-        '''
+"""
 if __name__ == "__main__":
     import json
     
@@ -99,4 +114,4 @@ if __name__ == "__main__":
     collection = _get_collection()
     print(f"Verification: Collection count is {collection.count()}")
 
-    '''
+ """
