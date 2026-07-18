@@ -1,6 +1,5 @@
 """
 File: agent/agent_jobs.py
-<<<<<<< HEAD
 Owner: Member 3 - Priyanshi Saini
 Function: Orchestrates the full RAG pipeline: fetching jobs, embedding,
           storing, and triggering the matching task. Also derives
@@ -8,17 +7,6 @@ Function: Orchestrates the full RAG pipeline: fetching jobs, embedding,
           technical skills across all matched jobs) for Member 4's
           roadmap agent, since this node runs immediately before it.
 Location: agent/ folder — called by graph/graph.py.
-=======
-Owner: Member 3 Priyanshi Saini
-Function: Orchestrates the full RAG pipeline for job matching. Called by
-          graph/graph.py's jobs_node. Reads state["skills"], state["target_role"],
-          and state["resume_embedding"] (all produced by Member 2's resume
-          agent), runs the 6-step pipeline (fetch -> embed -> store -> query
-          -> retrieve -> reason), and writes state["raw_job_listings"],
-          state["retrieved_chunks"], state["job_listings"], and
-          state["skill_gaps"] back onto the shared AgentState.
-Location: agent/ folder — registered as a node in graph/graph.py.
->>>>>>> c5e5a4136591896740f92429145736f39eb90a0a
 """
 
 from graph.state import AgentState
@@ -109,55 +97,4 @@ def run(state: AgentState) -> AgentState:
     # Step 5: Derive skill_gaps (flat list of strings) for Member 4's roadmap agent
     state["skill_gaps"] = _derive_skill_gaps(matched_jobs)
 
-<<<<<<< HEAD
     return state
-=======
-if __name__ == "__main__":
-    # Manual/independent test: run `python agent/agent_jobs.py` from the
-    # project root. Requires JSEARCH_API_KEY and OPENROUTER_API_KEY in .env
-    # (or a pre-existing cache file in data/rawFolder/ for the target role).
-    dummy_state = {
-        "resume_text": "",
-        "resume_json": {},
-        "skills": ["Python", "SQL", "Docker"],
-        "resume_embedding": None,  # replaced below with a real embedding
-        "target_role": "Software Engineer Intern",
-        "raw_job_listings": [],
-        "retrieved_chunks": [],
-        "job_listings": [],
-        "skill_gaps": [],
-        "roadmap": "",
-        "cover_letter": "",
-        "user_intent": "jobs",
-        "error": None,
-    }
-
-    # In the real pipeline this comes from Member 2's task_extract_skills.py.
-    # Here we generate a stand-in embedding so this file is testable on its own.
-    from sentence_transformers import SentenceTransformer
-    from graph.state import EMBEDDING_MODEL
-
-    embedder = SentenceTransformer(EMBEDDING_MODEL)
-    dummy_state["resume_embedding"] = embedder.encode(
-        f"Job requiring: {', '.join(dummy_state['skills'])}"
-    ).tolist()
-
-    result = run(dummy_state)
-
-    print("\n========== Final State (agent_jobs) ==========")
-    print("Error:", result.get("error"))
-    print("Raw job listings fetched:", len(result.get("raw_job_listings", [])))
-    print("Retrieved chunks:", len(result.get("retrieved_chunks", [])))
-    print("Job listings (scored):", result.get("job_listings"))
-    print("Skill gaps:", result.get("skill_gaps"))
-
-    # Spot check: do matched_skills on the returned jobs actually overlap
-    # with the skills we fed in? If this set is empty across every job while
-    # skills was non-empty, something upstream (embedding, retrieval, or the
-    # LLM prompt) is broken, not just "no matches happened to exist".
-    input_skills = set(dummy_state["skills"])
-    for job in result.get("job_listings", []) or []:
-        overlap = input_skills.intersection(job.get("matched_skills", []))
-        print(f"Spot check — '{job.get('job_title')}': matched_skills overlap with input skills = {overlap or 'NONE'}")
-
->>>>>>> c5e5a4136591896740f92429145736f39eb90a0a

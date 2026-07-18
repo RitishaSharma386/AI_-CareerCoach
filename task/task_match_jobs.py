@@ -19,9 +19,11 @@ def _clean_json_response(raw_text: str) -> str:
     """
     if not raw_text:
         return ""
+
     text = raw_text.strip()
     text = re.sub(r"^```(?:json)?\s*", "", text)
     text = re.sub(r"\s*```$", "", text)
+
     return text.strip()
 
 
@@ -29,9 +31,11 @@ def _build_prompt(skills: list, retrieved_chunks: list) -> str:
     """
     Builds the prompt sent to the LLM with structured job input.
     """
-    # Format chunks clearly so the LLM doesn't get confused
-    formatted_chunks = "\n\n".join([f"JOB {i+1}:\n{chunk}" for i, chunk in enumerate(retrieved_chunks)])
-    
+
+    formatted_chunks = "\n\n".join(
+        [f"JOB {i+1}:\n{chunk}" for i, chunk in enumerate(retrieved_chunks)]
+    )
+
     return f"""
 User skills: {skills}.
 
@@ -47,45 +51,79 @@ For each job, return JSON with these exact fields:
 - matched_skills (list)
 - missing_skills (list)
 
-Return ONLY a valid JSON array. Do not include any preamble, markdown fences, or explanations.
+Return ONLY a valid JSON array.
+Do not include markdown fences or explanations.
 """
 
 
 def match_jobs(skills: list, retrieved_chunks: list) -> list:
     """
-    Sends retrieved job descriptions to the LLM and returns a scored, 
+    Sends retrieved job descriptions to the LLM and returns a scored,
     structured list of matches.
     """
+
+    print("\n========== ENTERED match_jobs() ==========")
+
     if not retrieved_chunks:
         print("match_jobs: no retrieved_chunks provided, nothing to match.")
         return []
 
     client = get_model()
+    print("OpenRouter client created successfully.")
+
     prompt = _build_prompt(skills, retrieved_chunks)
-    
-    # Debugging the input sent to the LLM
-    print(f"DEBUG: Prompt content sent to LLM: {prompt[:300]}...")
+
+    print("\n===== Prompt Sent to LLM =====")
+    print(prompt)
+
+    raw_content = ""
 
     try:
+        print("\n===== Sending request to OpenRouter =====")
+
         response = client.chat.completions.create(
-            model="openrouter/free",
-            messages=[{"role": "user", "content": prompt}],
+            model="openai/gpt-oss-20b:free",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
         )
-        raw_content = response.choices[0].message.content
+
+        print("\n===== LLM RESPONSE RECEIVED =====")
+        print(response)
+
+        if not response.choices:
+            print("match_jobs: No choices returned by the LLM.")
+            return []
+
+        raw_content = response.choices[0].message.content or ""
+
+        print("\n===== Raw Content =====")
+        print(raw_content)
+
     except Exception as e:
-        print(f"match_jobs: OpenRouter API call failed: {e}")
+        print(f"\n===== OpenRouter Exception =====")
+        print(e)
         return []
 
     cleaned = _clean_json_response(raw_content)
 
+    print("\n===== Cleaned JSON =====")
+    print(cleaned)
+
     try:
+        print("\n===== Parsing JSON =====")
         parsed = json.loads(cleaned)
+        print("JSON parsed successfully.")
+
     except (json.JSONDecodeError, TypeError) as e:
         print(f"match_jobs: failed to parse LLM response as JSON: {e}")
-        print(f"match_jobs: raw response was: {raw_content!r}")
+        print(f"match_jobs: raw response was:\n{raw_content}")
         return []
 
-    # Handle cases where the model returns an object like {"jobs": [...]}
+    # Handle {"jobs": [...]} format if returned
     if isinstance(parsed, dict):
         for value in parsed.values():
             if isinstance(value, list):
@@ -95,18 +133,10 @@ def match_jobs(skills: list, retrieved_chunks: list) -> list:
             parsed = [parsed]
 
     if not isinstance(parsed, list):
-        print(f"match_jobs: unexpected JSON shape after parsing: {type(parsed)}")
+        print(f"match_jobs: unexpected JSON shape: {type(parsed)}")
         return []
 
+    print("\n===== Returning Parsed Jobs =====")
+    print(f"Number of matched jobs: {len(parsed)}")
+
     return parsed
-
-
-if __name__ == "__main__":
-    # Test block
-    mock_skills = ["Python", "SQL", "Machine Learning"]
-    mock_chunks = [
-        "Title: Data Analyst\nCompany: Amazon\nDescription: Analyze e-commerce data using SQL and Python.",
-        "Title: ML Engineer\nCompany: Meta\nDescription: Train and deploy machine learning models at scale.",
-    ]
-    results = match_jobs(mock_skills, mock_chunks)
-    print(json.dumps(results, indent=2, ensure_ascii=False))
