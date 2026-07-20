@@ -1,3 +1,11 @@
+# def run(state):
+
+#     print("Resume Agent Running")
+
+#     state["skills"] = ["Python"]
+
+#     return state
+
 
 """
 File: agent/agent_resume.py
@@ -49,5 +57,3 @@ if __name__ == "__main__":
     result = process_resume(pdf_path)
 
     print(result)
-
-

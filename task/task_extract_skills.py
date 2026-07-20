@@ -151,5 +151,3 @@ Resume text:
     except Exception as e:
         print(f"Error extracting resume information: {e}")
         return {}
-    
-

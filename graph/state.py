@@ -26,4 +26,3 @@ class AgentState(TypedDict):
     user_query: str 
     user_intent: str
     error: Optional[str]
-    

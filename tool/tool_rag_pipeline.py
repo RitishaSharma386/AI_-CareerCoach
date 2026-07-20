@@ -22,11 +22,11 @@ def _get_encoder() -> SentenceTransformer:
     if _encoder is None: _encoder = SentenceTransformer(EMBEDDING_MODEL)
     return _encoder
 
-def _get_client() -> chromadb.PersistentClient:
+def _get_client() -> chromadb.EphemeralClient:
     global _chroma_client
     if _chroma_client is None:
         os.makedirs(CHROMA_PATH, exist_ok=True)
-        _chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+        _chroma_client = chromadb.EphemeralClient()
     return _chroma_client
 
 def _get_collection():

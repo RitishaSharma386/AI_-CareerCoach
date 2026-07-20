@@ -9,15 +9,49 @@ Location: ui/ folder — entry point: streamlit run ui/app.py
 
 import streamlit as st
 import os
+import sys
+import traceback
 
-#IMPORT THE REAL BACKEND GRAPH
+# Add root to path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir)
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+
+# --- BACKEND IMPORTS WITH DETAILED ERROR REPORTING ---
 try:
     from graph.graph import graph
-except ImportError:
-    st.error("Backend not found! Make sure you run this from the project root.")
+    print("LOG: Successfully imported graph")
+except Exception as e:
+    print(f"LOG: CRITICAL IMPORT ERROR (graph): {e}")
     graph = None
 
+try:
+    from tool.tool_pdf_parser import extract_text
+    print("LOG: Successfully imported extract_text")
+except Exception as e:
+    print(f"LOG: CRITICAL IMPORT ERROR (tool): {e}")
+    extract_text = None
+
 # --- HELPER TO SAVE PDF ---
+def get_base_state():  
+    """Returns a completely initialized AgentState."""
+    return {
+        "resume_text": "",
+        "resume_json": {},
+        "skills": [],
+        "resume_embedding": [],
+        "target_role": "",
+        "raw_job_listings": [],
+        "retrieved_chunks": [],
+        "job_listings": [],
+        "skill_gaps": [],
+        "roadmap": "",
+        "cover_letter": "",
+        "user_query": "",
+        "user_intent": "",
+        "error": None
+    }
 
 def save_uploaded_file(uploaded_file):
     os.makedirs("data/rawFolder", exist_ok=True)
@@ -41,38 +75,52 @@ tab1, tab2, tab3, tab4 = st.tabs(["Upload PDF", "Find Jobs", "Roadmap", "Cover L
 # Tab 1: PDF uploader widget
 with tab1:
     st.header("Document Upload")
-    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+    uploaded_file = st.file_uploader("Choose a PDF file", type=["pdf"])
     
     if uploaded_file is not None and graph is not None:
         st.success(f"Successfully uploaded: {uploaded_file.name}")
         
-        with st.spinner("Extracting data from resume using AI..."):
-            try:
-                
-                save_uploaded_file(uploaded_file)
-                
-                
-                initial_state = {"user_intent": "end"}
-                result_state = graph.invoke(initial_state)
-                
-                
-                if result_state.get("error"):
-                    st.error(f"Backend Error: {result_state['error']}")
-                else:
-                    st.session_state["resume_data"] = result_state.get("resume_json", {})
-                    st.session_state["skills"] = result_state.get("skills", [])
-                    st.session_state["full_state"] = result_state # Save entire state for later
+        # We add a button so the AI only runs when you specifically click 'Process'
+        if st.button("Process Document"):
+            with st.spinner("Extracting data from resume using AI..."):
+                try:
+                    # 1. Save and extract text
+                    file_path = save_uploaded_file(uploaded_file)
+                    resume_text = extract_text(file_path)
                     
-                    st.divider() 
-                    st.subheader("Extraction Results")
-                    skills_string = ", ".join(st.session_state["skills"])
-                    st.write(f"**Identified Skills:** {skills_string}")
+                    # 2. Prepare the base state with the extracted text
+                    state = get_base_state()
+                    state.update({
+                        "resume_text": resume_text,
+                        "user_query": "full_analysis" # Or the intent string M1 expects
+                    })
                     
-                    with st.expander("View Full Parsed Resume Data"):
-                        st.json(st.session_state["resume_data"])
-            
-            except Exception as e:
-                st.error(f"UI Integration Crash: {e}")
+                    # 3. Invoke the graph
+                    result_state = graph.invoke(state)
+                    
+                    # 4. Check for errors and display results
+                    if result_state.get("error"):
+                        st.error(f"Backend Error: {result_state['error']}")
+                    else:
+                        # Save state for other tabs
+                        st.session_state["full_state"] = result_state
+                        st.session_state["resume_data"] = result_state.get("resume_json", {})
+                        st.session_state["skills"] = result_state.get("skills", [])
+                        
+                        st.success("Resume parsed successfully!")
+                        
+                        st.divider() 
+                        st.subheader("Extraction Results")
+                        skills_list = st.session_state["skills"]
+                        skills_string = ", ".join(skills_list) if skills_list else "No skills identified."
+                        st.write(f"**Identified Skills:** {skills_string}")
+                        
+                        with st.expander("View Full Parsed Resume Data"):
+                            st.json(st.session_state["resume_data"])
+                            
+                except Exception as e:
+                    st.error(f"UI Integration Crash: {e}")
+                    st.code(traceback.format_exc())
 
 # Tab 2: Job Search
 with tab2:
@@ -96,19 +144,25 @@ with tab2:
                         
                         result_state = graph.invoke(state_request)
                         
+                        result_state = graph.invoke(state_request)
+
                         if result_state.get("error"):
                             st.error(f"Backend Error: {result_state['error']}")
                         else:
-                            # Save updated state
-                            st.session_state["full_state"] = result_state
-                            st.session_state["matched_jobs"] = result_state.get("job_listings", [])
+                            jobs = result_state.get("job_listings", [])
+                            if not jobs:
+                                st.warning("No jobs were found. Check your API key or try a different role.")
+                            else:
+                                # Save updated state
+                                st.session_state["full_state"] = result_state
+                                st.session_state["matched_jobs"] = result_state.get("job_listings", [])
                             
-                            st.success("Found matching jobs!")
-                            for job in st.session_state["matched_jobs"]:
-                                expander_title = f"{job.get('title', 'Job')} at {job.get('company', 'Company')} - {job.get('match_score', 'N/A')}"
-                                with st.expander(expander_title):
-                                    st.write(f"**Matched Skills:** {', '.join(job.get('matched_skills', []))}")
-                                    st.write(f"**Missing Skills:** {', '.join(job.get('missing_skills', []))}")
+                                st.success("Found matching jobs!")
+                                for job in st.session_state["matched_jobs"]:
+                                    expander_title = f"{job.get('title', 'Job')} at {job.get('company', 'Company')} - {job.get('match_score', 'N/A')}"
+                                    with st.expander(expander_title):
+                                        st.write(f"**Matched Skills:** {', '.join(job.get('matched_skills', []))}")
+                                        st.write(f"**Missing Skills:** {', '.join(job.get('missing_skills', []))}")
                     except Exception as e:
                         st.error(f"UI Integration Crash: {e}")
 
@@ -130,8 +184,13 @@ with tab3:
                     if result_state.get("error"):
                         st.error(f"Backend Error: {result_state['error']}")
                     else:
-                        st.session_state["full_state"] = result_state
-                        st.markdown(result_state.get("roadmap", "No roadmap generated."))
+                        # --- THE FIX ---
+                        # Instead of replacing the whole state, we explicitly 
+                        # update the existing state with the new roadmap key.
+                        st.session_state["full_state"].update(result_state)
+                        
+                        st.success("Roadmap generated!")
+                        st.markdown(st.session_state["full_state"].get("roadmap", "No roadmap generated."))
                 except Exception as e:
                     st.error(f"UI Integration Crash: {e}")
 
