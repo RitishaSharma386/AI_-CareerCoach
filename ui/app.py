@@ -144,8 +144,6 @@ with tab2:
                         
                         result_state = graph.invoke(state_request)
                         
-                        result_state = graph.invoke(state_request)
-
                         if result_state.get("error"):
                             st.error(f"Backend Error: {result_state['error']}")
                         else:
@@ -185,12 +183,22 @@ with tab3:
                         st.error(f"Backend Error: {result_state['error']}")
                     else:
                         # --- THE FIX ---
-                        # Instead of replacing the whole state, we explicitly 
-                        # update the existing state with the new roadmap key.
-                        st.session_state["full_state"].update(result_state)
+                        roadmap_text = result_state.get("roadmap", "")
                         
-                        st.success("Roadmap generated!")
-                        st.markdown(st.session_state["full_state"].get("roadmap", "No roadmap generated."))
+                        # Guard against empty strings or None
+                        if not roadmap_text or not roadmap_text.strip():
+                            st.error("The AI returned an empty response due to a rate limit or prompt failure. Please try again.")
+                        else:
+                      
+                            roadmap_text = result_state.get("roadmap", "")
+                        
+                            if not roadmap_text or not roadmap_text.strip():
+                                st.error("The AI returned an empty response due to a rate limit or prompt failure. Please try again.")
+                            else:
+                                st.session_state["full_state"].update(result_state)
+                                st.success("Roadmap generated!")
+                                st.markdown(roadmap_text)
+                        
                 except Exception as e:
                     st.error(f"UI Integration Crash: {e}")
 
