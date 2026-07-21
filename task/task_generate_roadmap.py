@@ -8,7 +8,6 @@ Location: task/ folder — called by agent/agent_roadmap.py.
 """
 from tool.tool_llm_client import get_model
 
-
 def generate_roadmap(target_role: str, skill_gaps: list) -> str:
     client = get_model()
     prompt = f"""
@@ -27,13 +26,17 @@ def generate_roadmap(target_role: str, skill_gaps: list) -> str:
 
     for attempt in range(2):
         response = client.chat.completions.create(
+
             model="openai/gpt-oss-20b:free",
             temperature=0,
             max_tokens=3000,
             extra_body={"reasoning": {"effort": "low"}},
             messages=[{"role": "user", "content": prompt}]
+
         )
+
         content = response.choices[0].message.content
+        
         if content:
             return content
 

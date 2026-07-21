@@ -8,7 +8,6 @@ Location: task/
 
 from tool.tool_llm_client import get_model
 
-
 def generate_cover_letter(
     resume_json: dict,
     company: str,
@@ -44,9 +43,13 @@ Instructions:
             max_tokens=3000,
             extra_body={"reasoning": {"effort": "low"}},
             messages=[{"role": "user", "content": prompt}],
+
         )
+
         content = response.choices[0].message.content
+
         if content:
+
             return content
 
     raise ValueError("LLM returned an empty response after 2 attempts")

@@ -18,7 +18,7 @@ from task import task_match_jobs
 
 # Configuration for Retrieval
 # Adjust this value to 3, 5, or 8 to find the best tradeoff for your matching
-RETRIEVAL_K = 5
+RETRIEVAL_K = 3
 
 def _derive_skill_gaps(matched_jobs: list) -> list:
     """

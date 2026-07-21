@@ -29,7 +29,7 @@ def _build_prompt(skills: list, retrieved_chunks: list) -> str:
     """
     Builds the prompt sent to the LLM with structured job input.
     """
-    # Format chunks clearly so the LLM doesn't get confused
+    
     formatted_chunks = "\n\n".join([f"JOB {i+1}:\n{chunk}" for i, chunk in enumerate(retrieved_chunks)])
     
     return f"""
@@ -47,7 +47,11 @@ For each job, return JSON with these exact fields:
 - matched_skills (list)
 - missing_skills (list)
 
-Return ONLY a valid JSON array. Do not include any preamble, markdown fences, or explanations.
+CRITICAL INSTRUCTIONS:
+- Return ONLY a valid JSON array.
+- Do not include markdown fences, code blocks, or explanations.
+- Ensure all brackets and braces are properly closed.
+- DO NOT use trailing commas or semicolons. Output strict, valid JSON.
 """
 
 
@@ -63,42 +67,57 @@ def match_jobs(skills: list, retrieved_chunks: list) -> list:
     client = get_model()
     prompt = _build_prompt(skills, retrieved_chunks)
     
-    # Debugging the input sent to the LLM
     print(f"DEBUG: Prompt content sent to LLM: {prompt[:300]}...")
 
-    try:
-        response = client.chat.completions.create(
-            model="openrouter/free",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw_content = response.choices[0].message.content
-    except Exception as e:
-        print(f"match_jobs: OpenRouter API call failed: {e}")
-        return []
+    for attempt in range(3):
+        try:
+            print(f"DEBUG: Requesting job matches from LLM (Attempt {attempt + 1})...")
+            response = client.chat.completions.create(
+                model="openai/gpt-oss-20b:free", # Using your team's preferred model
+                max_tokens=3000, 
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw_content = response.choices[0].message.content or ""
+            
+            # If the model glitches with the safety flag, trigger a retry
+            if "User Safety: safe" in raw_content:
+                print(f"DEBUG: Model returned safety flag on attempt {attempt + 1}. Retrying...")
+                continue
 
-    cleaned = _clean_json_response(raw_content)
+            cleaned = _clean_json_response(raw_content)
+            parsed = json.loads(cleaned)
 
-    try:
-        parsed = json.loads(cleaned)
-    except (json.JSONDecodeError, TypeError) as e:
-        print(f"match_jobs: failed to parse LLM response as JSON: {e}")
-        print(f"match_jobs: raw response was: {raw_content!r}")
-        return []
+            
+            if isinstance(parsed, dict):
+                for value in parsed.values():
+                    if isinstance(value, list):
+                        parsed = value
+                        break
+                else:
+                    parsed = [parsed]
 
-    # Handle cases where the model returns an object like {"jobs": [...]}
-    if isinstance(parsed, dict):
-        for value in parsed.values():
-            if isinstance(value, list):
-                parsed = value
-                break
-        else:
-            parsed = [parsed]
+            if not isinstance(parsed, list):
+                print(f"match_jobs: unexpected JSON shape after parsing: {type(parsed)}")
+                return []
+            
+            # Attach the original job descriptions so the Cover Letter agent doesn't fail
+            for i, job in enumerate(parsed):
+                if i < len(retrieved_chunks):
+                    job["job_description"] = retrieved_chunks[i]
+                    
+            return parsed
 
-    if not isinstance(parsed, list):
-        print(f"match_jobs: unexpected JSON shape after parsing: {type(parsed)}")
-        return []
+        except (json.JSONDecodeError, TypeError) as e:
+            print(f"match_jobs: JSON parsing failed on attempt {attempt + 1}: {e}")
+            print(f"match_jobs: raw response was: {raw_content!r}")
+            
+        except Exception as e:
+            print(f"match_jobs: OpenRouter API call failed on attempt {attempt + 1}: {e}")
+            
 
-    return parsed
+    # If it fails 3 times, return an empty list
+    print("match_jobs: Failed to get a valid JSON response after 3 attempts.")
+    return []
 
 
 if __name__ == "__main__":

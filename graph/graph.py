@@ -14,30 +14,7 @@ Responsibilities:
 - Invokes individual AI agents.
 - Handles exceptions raised by agents.
 - Compiles the graph into an executable workflow.
-
-Workflow:
-
-START
-   │
-Resume
-   │
-Conditional Routing
- ┌──────────────┬──────────────┬────────────────┐
- │              │              │
- ▼              ▼              ▼
-Jobs        Roadmap     Cover Letter
- │              │              │
- ▼              ▼              ▼
-(Continue?) (Continue?)       END
- │
- ├── Yes → Next Node
- └── No  → END
-
-Full Analysis:
-Jobs → Roadmap → Cover Letter → END
 """
-
-
 
 from graph.state import AgentState
 from agent.agent_orchestrator import route
@@ -51,14 +28,14 @@ builder = StateGraph(AgentState)
 
 #Nodes:
 def resume_node(state: AgentState):
-
+    # --- FIX: Prevent re-parsing the resume on Tabs 2, 3, and 4 ---
+    if state.get("resume_json") and state.get("skills"):
+        print("DEBUG: Bypassing Resume Node (already parsed)")
+        return state
+    # --------------------------------------------------------------
     try:
         updated_state = agent_resume.run(state)
-        # print("\n===== After Resume Node =====")
-        # print(updated_state)
-
         return updated_state
-
     except Exception as e:
         state["error"] = str(e)
         print("Resume Node Error:", e)
@@ -66,14 +43,9 @@ def resume_node(state: AgentState):
 
 
 def jobs_node(state: AgentState):
-
     try:
         updated_state = agent_jobs.run(state)
-        # print("\n===== After Job Node =====")
-        # print(updated_state)
-
         return updated_state
-
     except Exception as e:
         state["error"] = str(e)
         print("Jobs Node Error:", e)
@@ -81,14 +53,9 @@ def jobs_node(state: AgentState):
 
 
 def roadmap_node(state: AgentState):
-
     try:
         updated_state = agent_roadmap.run(state)
-        # print("\n===== After Roadmap Node =====")
-        # print(updated_state)
-
         return updated_state
-
     except Exception as e:
         state["error"] = str(e)
         print("Roadmap Node Error:", e)
@@ -96,23 +63,15 @@ def roadmap_node(state: AgentState):
 
 
 def cover_letter_node(state: AgentState):
-
     try:
         updated_state = agent_cover_letter.run(state)
-        # print("\n===== After Cover Letter Node =====")
-        # print(updated_state)
-
         return updated_state
-
     except Exception as e:
         state["error"] = str(e)
         print("Cover Letter Node Error:", e)
         return state
     
 
-
-
-    
 #Register Nodes:
 builder.add_node("resume",resume_node)
 builder.add_node("jobs",jobs_node)
@@ -156,6 +115,7 @@ builder.add_conditional_edges(
     after_jobs,
     {
         "roadmap": "roadmap",
+        "cover_letter": "cover_letter", # FIX: Added to prevent KeyError
         "end": END,
     }
 )
@@ -177,30 +137,3 @@ builder.set_entry_point("resume")
 #Compile graph
 graph=builder.compile()
 
-
-
-
-
-
-# ------------------------------------
-# Dummy State
-# ------------------------------------
-
-# dummy_state = {
-#     "resume_text": "I know Python",
-#     "resume_json": {},
-#     "skills": [],
-#     "resume_embedding": [],
-#     "target_role": "",
-#     "raw_job_listings": [],
-#     "retrieved_chunks": [],
-#     "job_listings": [],
-#     "skill_gaps": [],
-#     "roadmap": "",
-#     "cover_letter": "",
-#     "user_intent": "jobs",
-#     "error": None
-# }
-# result = graph.invoke(dummy_state)
-# print("\n========== Final State ==========") 
-# print(result)
