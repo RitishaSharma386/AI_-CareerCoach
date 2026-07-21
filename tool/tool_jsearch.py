@@ -42,9 +42,17 @@ def search_jobs(role: str, location: str = "India") -> list:
         response = requests.get(JSEARCH_URL, headers=headers, params=params, timeout=15)
         response.raise_for_status()
         data = response.json()
+        print(f"DEBUG: Type of data['data']: {type(data.get('data'))}")
+        print(f"DEBUG: Content of data['data']: {data.get('data')}")
         
+        print(f"DEBUG: Keys in API response: {list(data.keys())}")
+
         # EXTRACT: Get the raw container
-        raw_list = data.get("data") or data.get("jobs") or []
+        data_container = data.get("data")
+        if isinstance(data_container, dict):
+            raw_list = data_container.get("jobs", [])
+        else:
+            raw_list = data_container or data.get("jobs") or []
         
         # NORMALIZE: Ensure every item is a dictionary
         job_listings = []
@@ -59,7 +67,7 @@ def search_jobs(role: str, location: str = "India") -> list:
                     continue
         
     except Exception as e:
-        print(f"DEBUG: JSearch API Error: {str(e)}") # This will show you exactly what is failing
+        print(f"JSearch API request failed: {e}")
         return []
 
     _ensure_raw_folder()

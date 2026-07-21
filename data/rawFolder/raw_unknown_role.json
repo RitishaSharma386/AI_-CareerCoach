@@ -1,0 +1,59 @@
+{
+  "status": "OK",
+  "request_id": "133514d6-7c75-4e71-ade4-b13dd83a7da0",
+  "parameters": {
+    "query": "in India",
+    "num_pages": 1,
+    "country": "in",
+    "language": "en"
+  },
+  "data": {
+    "jobs": [
+      {
+        "job_id": "T_HH4YHGBunVsvEgAAAAAA==",
+        "job_title": "Commission Sales Associate",
+        "employer_name": "Gensivo",
+        "employer_logo": "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://gensivo.com&size=128",
+        "employer_website": "https://gensivo.com",
+        "job_publisher": "LinkedIn",
+        "job_employment_type": "Full–time",
+        "job_employment_types": [
+          "FULLTIME"
+        ],
+        "job_apply_link": "https://in.linkedin.com/jobs/view/commission-sales-associate-at-gensivo-4439435561",
+        "job_apply_is_direct": false,
+        "apply_options": [
+          {
+            "apply_link": "https://in.linkedin.com/jobs/view/commission-sales-associate-at-gensivo-4439435561",
+            "is_direct": false,
+            "publisher": "LinkedIn"
+          }
+        ],
+        "job_description": "Company Description Gensivo is a growing organization focused on delivering effective, customer-centered solutions across its product and service lines. The company values transparent communication, ethical business practices, and measurable results. Team members are encouraged to contribute ideas, collaborate across functions, and build long-term relationships with clients. Gensivo offers opportunities for performance-based growth, making it an appealing environment for motivated sales professionals.\n\nRole Description This is a full-time, on-site Commission Sales Associate role based in Chandigarh, India. The Commission Sales Associate will identify and engage prospective customers, present products and services, and guide clients through the sales process from initial contact to closing. Day-to-day tasks include conducting outreach via calls, messages, and in-person meetings, maintaining accurate records of interactions, and following up on leads to convert them into sales. The role also involves building strong customer relationships, understanding client needs, and collaborating with internal teams to ensure a smooth customer experience. Performance will be measured against sales targets, with commission-based earnings linked directly to individual results.\n\nQualifications\n• Candidates should possess strong communication and interpersonal skills, including the ability to explain offerings clearly and negotiate effectively.\n• Candidates should possess customer service and relationship-building skills to manage inquiries, address concerns, and maintain ongoing client engagement.\n• Candidates should possess basic sales and lead-generation abilities, including prospecting, qualifying leads, and closing deals.\n• Candidates should possess organizational and time-management skills to handle multiple leads, follow-ups, and reporting responsibilities.\n• Relevant qualifications such as prior experience in sales or retail, familiarity with commission-based roles, and comfort working with sales targets are beneficial.\n• A high school diploma or equivalent is typically required; a degree in business, marketing, or a related field is an advantage but not mandatory.\n• Proficiency with common digital tools (e.g., email, spreadsheets, CRM or lead-tracking systems) and the ability to learn new platforms quickly is beneficial.\n• Self-motivation, resilience, and a results-oriented mindset are important for success in this role.",
+        "job_is_remote": false,
+        "job_posted_at": "5 days ago",
+        "job_posted_at_timestamp": 1783900800,
+        "job_posted_at_datetime_utc": "2026-07-13T00:00:00.000Z",
+        "job_location": "Chandigarh",
+        "job_city": "Chandigarh",
+        "job_state": "Chandigarh",
+        "job_country": "IN",
+        "job_latitude": 30.7333148,
+        "job_longitude": 76.7794179,
+        "job_benefits": null,
+        "job_benefits_strings": null,
+        "job_google_link": "https://www.google.com/search?q=jobs&gl=in&hl=en&udm=8#vhid=vt%3D20/docid%3DT_HH4YHGBunVsvEgAAAAAA%3D%3D&vssid=jobs-detail-viewer",
+        "job_salary": null,
+        "job_salary_string": null,
+        "job_min_salary": null,
+        "job_max_salary": null,
+        "job_salary_period": null,
+        "job_highlights": {},
+        "job_onet_soc": null,
+        "job_onet_job_zone": null,
+        "employer_reviews": null
+      }
+    ],
+    "cursor": "ErYBCndBSmlUNHRMdVpQdFIxU2lYZ1FleGVfRFJDS3F2dFBueXdma3BleVZ0S2p1UTBraXFaWk4zSE9GNHl2cGVCN3dNR053RzFXTzQyaFViaFFkYU9ZeTNUSjB4dkwzNmlnbUJyRjUzSm9LNzhGdW1QODR3Q0FXRWlDWRIXbzFGYmFvNjFETy00cXRzUF9kbXJ5QUkaIkFEc3I5ZlRrckhRcU9YSzl6RFQ1eUMzQmE4ZS1jakI0eEE"
+  }
+}

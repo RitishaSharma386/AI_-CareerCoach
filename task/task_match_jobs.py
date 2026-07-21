@@ -4,83 +4,124 @@ Owner: Member 3 - Priyanshi Saini
 Function: Sends top-k retrieved job descriptions to the LLM (via OpenRouter)
           for reasoning. Returns a scored list with match_score,
           matched_skills, and missing_skills for each retrieved job.
+Location: task/ folder — called by agent/agent_jobs.py.
 """
+
 import json
 import re
-import time
+
 from tool.tool_llm_client import get_model
 
+
 def _clean_json_response(raw_text: str) -> str:
-    if not raw_text: return ""
+    """
+    Strips markdown code fences and surrounding whitespace from an LLM response.
+    """
+    if not raw_text:
+        return ""
     text = raw_text.strip()
-    # Remove markdown code blocks
-    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^```(?:json)?\s*", "", text)
     text = re.sub(r"\s*```$", "", text)
     return text.strip()
 
+
 def _build_prompt(skills: list, retrieved_chunks: list) -> str:
+    """
+    Builds the prompt sent to the LLM with structured job input.
+    """
+    
     formatted_chunks = "\n\n".join([f"JOB {i+1}:\n{chunk}" for i, chunk in enumerate(retrieved_chunks)])
+    
     return f"""
-You are an expert Career Coach. Analyze the jobs below and compare them to the candidate's skills.
+User skills: {skills}.
 
-Candidate Skills: {skills}
+Analyze the following job descriptions and return a JSON array of objects.
 
-Retrieved Jobs:
+Retrieved jobs:
 {formatted_chunks}
 
----
-INSTRUCTIONS:
-1. For each job, return a JSON object with: job_title, company, match_score (0-10), matched_skills (list), missing_skills (list).
-2. ONLY include skills in 'matched_skills' if they are explicitly found in the Job Description.
-3. 'missing_skills' must only contain requirements listed in the Job Description that the candidate does NOT have.
-4. DO NOT repeat the candidate's skills if they aren't relevant to the job.
-5. If a job description is vague, assign a lower match_score.
-6. Return ONLY a valid JSON array. No preamble, no markdown formatting.
+For each job, return JSON with these exact fields:
+- job_title
+- company
+- match_score (0-10)
+- matched_skills (list)
+- missing_skills (list)
 
-Example Output Format:
-[
-  {{"job_title": "Data Scientist", "company": "Tech Corp", "match_score": 8, "matched_skills": ["Python"], "missing_skills": ["PyTorch"]}}
-]
+CRITICAL INSTRUCTIONS:
+- Return ONLY a valid JSON array.
+- Do not include markdown fences, code blocks, or explanations.
+- Ensure all brackets and braces are properly closed.
+- DO NOT use trailing commas or semicolons. Output strict, valid JSON.
 """
 
-def match_jobs(skills: list, retrieved_chunks: list, retries=2) -> list:
-    if not retrieved_chunks: return []
-    
-    # DEBUG: See what we are sending to the LLM
-    print(f"DEBUG: Matching {len(retrieved_chunks)} jobs. First chunk preview: {retrieved_chunks[0][:200]}...")
-    
+
+def match_jobs(skills: list, retrieved_chunks: list) -> list:
+    """
+    Sends retrieved job descriptions to the LLM and returns a scored, 
+    structured list of matches.
+    """
+    if not retrieved_chunks:
+        print("match_jobs: no retrieved_chunks provided, nothing to match.")
+        return []
+
     client = get_model()
     prompt = _build_prompt(skills, retrieved_chunks)
     
-    for attempt in range(retries + 1):
+    print(f"DEBUG: Prompt content sent to LLM: {prompt[:300]}...")
+
+    for attempt in range(3):
         try:
-            # Note: For better reasoning, use "google/gemini-2.0-flash-lite-preview-02-05" 
-            # if your environment permits.
+            print(f"DEBUG: Requesting job matches from LLM (Attempt {attempt + 1})...")
             response = client.chat.completions.create(
-                model="openrouter/free",
+                model="openai/gpt-oss-20b:free", # Using your team's preferred model
+                max_tokens=3000, 
                 messages=[{"role": "user", "content": prompt}],
             )
-            raw_content = response.choices[0].message.content
-            cleaned = _clean_json_response(raw_content)
+            raw_content = response.choices[0].message.content or ""
             
-            if "User Safety" in cleaned or "unsafe" in cleaned.lower():
-                print(f"Attempt {attempt}: Safety refusal. Retrying...")
+            # If the model glitches with the safety flag, trigger a retry
+            if "User Safety: safe" in raw_content:
+                print(f"DEBUG: Model returned safety flag on attempt {attempt + 1}. Retrying...")
                 continue
-                
+
+            cleaned = _clean_json_response(raw_content)
             parsed = json.loads(cleaned)
+
             
-            if isinstance(parsed, list):
-                for job in parsed:
-                    score = job.get("match_score", 0)
-                    job["match_score"] = max(0, min(10, float(score)))
-                return parsed
+            if isinstance(parsed, dict):
+                for value in parsed.values():
+                    if isinstance(value, list):
+                        parsed = value
+                        break
+                else:
+                    parsed = [parsed]
+
+            if not isinstance(parsed, list):
+                print(f"match_jobs: unexpected JSON shape after parsing: {type(parsed)}")
+                return []
+            
+            # Attach the original job descriptions so the Cover Letter agent doesn't fail
+            for i, job in enumerate(parsed):
+                if i < len(retrieved_chunks):
+                    job["job_description"] = retrieved_chunks[i]
+                    
+            return parsed
+
+        except (json.JSONDecodeError, TypeError) as e:
+            print(f"match_jobs: JSON parsing failed on attempt {attempt + 1}: {e}")
+            print(f"match_jobs: raw response was: {raw_content!r}")
+            
         except Exception as e:
-            print(f"Attempt {attempt} failed: {e}")
-            time.sleep(2) # Increased backoff
+            print(f"match_jobs: OpenRouter API call failed on attempt {attempt + 1}: {e}")
             
+
+    # If it fails 3 times, return an empty list
+    print("match_jobs: Failed to get a valid JSON response after 3 attempts.")
     return []
 
+
 if __name__ == "__main__":
+    # Test block
     mock_skills = ["Python", "SQL", "Machine Learning"]
     mock_chunks = [
         "Title: Data Analyst\nCompany: Amazon\nDescription: Analyze e-commerce data using SQL and Python.",

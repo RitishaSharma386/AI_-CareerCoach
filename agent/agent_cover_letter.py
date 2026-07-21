@@ -33,7 +33,7 @@ def run(state: dict) -> dict:
     job = job_listings[0]  # picks the first job in the list
     job_description = job.get("job_description", "")
 
-    if len(job_description.split()) < 50:
+    if len(job_description.split()) < 10:
         return {"cover_letter": None, "error": "Job description too short to generate a meaningful cover letter."}
 
     try:
@@ -43,6 +43,9 @@ def run(state: dict) -> dict:
             job_description=job_description,
             job_title=job.get("job_title", ""),
         )
+        if not cover_letter or not cover_letter.strip():
+             return {"cover_letter": None, "error": "LLM returned an empty cover letter."}
+        
         return {"cover_letter": cover_letter}
     except Exception as e:
         return {"cover_letter": None, "error": str(e)}
