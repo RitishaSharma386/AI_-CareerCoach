@@ -1,4 +1,99 @@
 # AI_-CareerCoach
+
+Navigating the job market is tough, but it doesn't have to be. **AI Career Coach** is an intelligent, state-driven application that analyzes your resume, finds semantically matching jobs, and generates custom learning roadmaps alongside tailored cover letters. 
+
+## Demo 
+
+
+![AI Career Coach Resume Upload Screenshot](./resume_upload.png)
+![AI Career Coach Job Search Screenshot](./Job_Search.png)
+![AI Career Coach roadmap_generate Screenshot](./roadmap_generate.png)
+![AI Career Coach coverletter_generate Screenshot](./coverletter_generate.png)
+
+
+
+---
+
+## The Team
+
+This project was built collaboratively by a team of 5 developers, each owning a distinct architectural module:
+
+* **[Ritisha Sharma/Member 1]** — LangGraph Orchestrator & Routing
+* **[Kashish Dhingra/Member 2]** — Resume Parsing Agent
+* **[Priyanshi Saini/Member 3]** — RAG Pipeline & Jobs Agent
+* **[Shraddha Tyagi/Member 4]** — Roadmap Generation & Cover Letter Agent
+* **[Gargi Choudhary/Member 5]** — Streamlit Frontend & UI Integration
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+| :--- | :--- |
+| **Frontend UI** | Streamlit |
+| **Agent Orchestration** | LangGraph |
+| **LLM Provider** | OpenRouter (Free-tier open-source models) |
+| **Vector Database** | ChromaDB (Persistent) |
+| **Embeddings** | SentenceTransformers |
+| **Job Search API** | JSearch API |
+
+---
+
+## Step-by-Step Setup Guide
+
+Follow these steps to get the application running on your local machine.
+
+### 1. Clone the Repository
+To download this code, go to the top of this repository page, click the green **"<> Code"** button, and copy the web URL. Then, open your terminal and run:
+
+```bash
+git clone <PASTE_THE_URL_HERE>
+cd <NAME_OF_THE_CLONED_FOLDER>
+```
+
+### 2. Set up a Virtual Environment (Highly Recommended)
+Using a virtual environment keeps the project's dependencies isolated.
+
+**For Mac/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+**For Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+With your virtual environment active, install all required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure Environment Variables
+You will need API keys to run the LLMs and Job Search. Create a new file named exactly `.env` in the **root directory** of the project and add your keys like this:
+
+```text
+OPENROUTER_API_KEY=your_openrouter_key_here
+JSEARCH_API_KEY=your_jsearch_key_here
+```
+
+---
+
+## How to Run the App
+
+> **⚠️ CRITICAL:** You must run the application from the **root directory** of the project. Do not `cd` into the `ui/` folder.
+
+Ensure your virtual environment is active, then run:
+
+```bash
+streamlit run ui/app.py
+```
+
+
 ## Member 4 – Roadmap & Cover Letter Agent (Shraddha Tyagi)
 
 Generates two career-prep deliverables from the shared `AgentState`:
