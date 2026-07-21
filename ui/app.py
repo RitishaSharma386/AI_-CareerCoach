@@ -18,7 +18,7 @@ root_dir = os.path.dirname(current_dir)
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-# --- BACKEND IMPORTS WITH DETAILED ERROR REPORTING ---
+
 try:
     from graph.graph import graph
     print("LOG: Successfully imported graph")
@@ -80,7 +80,7 @@ with tab1:
     if uploaded_file is not None and graph is not None:
         st.success(f"Successfully uploaded: {uploaded_file.name}")
         
-        # We add a button so the AI only runs when you specifically click 'Process'
+        
         if st.button("Process Document"):
             with st.spinner("Extracting data from resume using AI..."):
                 try:
@@ -92,7 +92,7 @@ with tab1:
                     state = get_base_state()
                     state.update({
                         "resume_text": resume_text,
-                        "user_query": "full_analysis" # Or the intent string M1 expects
+                        "user_query": "full_analysis" 
                     })
                     
                     # 3. Invoke the graph
@@ -182,7 +182,7 @@ with tab3:
                     if result_state.get("error"):
                         st.error(f"Backend Error: {result_state['error']}")
                     else:
-                        # --- THE FIX ---
+                        
                         roadmap_text = result_state.get("roadmap", "")
                         
                         # Guard against empty strings or None
@@ -220,7 +220,7 @@ with tab4:
                     state_request["user_intent"] = "cover_letter"
                     state_request["error"] = None
                     
-                    # Pass ONLY the selected job so the agent knows which one to write about
+                    # Pass ONLY the selected job 
                     selected_job = job_options[selected_job_key]
                     state_request["job_listings"] = [selected_job] 
                     
