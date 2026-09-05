@@ -25,7 +25,7 @@ def classify_intent(user_input: str) -> str:
     try:
         client = get_model()
         response = client.chat.completions.create(
-            model="openai/gpt-oss-20b:free",
+            model="openai/gpt-oss-20b",
             messages=[
                 {
                     "role": "system",

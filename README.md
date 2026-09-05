@@ -119,7 +119,7 @@ Generates two career-prep deliverables from the shared `AgentState`:
 ### How it works
 
 Both agents follow the same pattern: read the relevant fields from `AgentState`, run a guard
-check, call OpenRouter (`openai/gpt-oss-20b:free`, `temperature=0`) with a retry on empty
+check, call OpenRouter (`openai/gpt-oss-20b`, `temperature=0`) with a retry on empty
 responses, and return only the new key(s) they contribute (`{"roadmap": ...}` or
 `{"cover_letter": ...}`) — never the full state — consistent with how the orchestrator merges
 node outputs.

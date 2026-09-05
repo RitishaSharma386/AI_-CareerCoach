@@ -62,7 +62,7 @@ captured in `state["error"]` instead, consistent with the orchestrator's error-h
 
 ## Model Configuration
 
-- **Model:** `openai/gpt-oss-20b:free` (same provider used by the orchestrator's intent classifier)
+- **Model:** `openai/gpt-oss-20b` (same provider used by the orchestrator's intent classifier)
 - **Temperature:** `0`
 - **max_tokens:** `3000`
 - **Reasoning effort:** `low` (via `extra_body={"reasoning": {"effort": "low"}}`)
@@ -73,7 +73,7 @@ captured in `state["error"]` instead, consistent with the orchestrator's error-h
 ### Why this configuration
 
 Three different free-tier setups were tried during testing — `openrouter/free` (auto-router),
-`meta-llama/llama-3.3-70b-instruct:free`, and `openai/gpt-oss-20b:free` at default settings —
+`meta-llama/llama-3.3-70b-instruct:free`, and `openai/gpt-oss-20b` at default settings —
 and all three occasionally produced corrupted output: stray non-English characters, broken
 grammar mid-sentence, or once a literal `"User Safety: safe"` string instead of a letter.
 Pinning `temperature=0` on `gpt-oss-20b:free` eliminated corruption across repeated test runs.

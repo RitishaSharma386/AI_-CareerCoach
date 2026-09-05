@@ -5,7 +5,7 @@ Allows developers to test the LangGraph routing and agents directly from the ter
 """
 
 import os
-from graph.graph import app as graph_app
+from graph.graph import graph as graph_app
 
 def print_separator(title: str):
     print(f"\n{'='*20} {title} {'='*20}")

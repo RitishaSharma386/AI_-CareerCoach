@@ -38,7 +38,7 @@ Instructions:
 
     for attempt in range(2):
         response = client.chat.completions.create(
-            model="openai/gpt-oss-20b:free",
+            model="openai/gpt-oss-20b",
             temperature=0,
             max_tokens=3000,
             extra_body={"reasoning": {"effort": "low"}},

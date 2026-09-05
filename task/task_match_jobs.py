@@ -73,7 +73,7 @@ def match_jobs(skills: list, retrieved_chunks: list) -> list:
         try:
             print(f"DEBUG: Requesting job matches from LLM (Attempt {attempt + 1})...")
             response = client.chat.completions.create(
-                model="openai/gpt-oss-20b:free", # Using your team's preferred model
+                model="openai/gpt-oss-20b", # Using your team's preferred model
                 max_tokens=3000, 
                 messages=[{"role": "user", "content": prompt}],
             )

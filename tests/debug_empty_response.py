@@ -11,7 +11,7 @@ client = get_model()
 for i in range(1, 6):
     print(f"\n{'='*60}\nCALL {i}\n{'='*60}")
     response = client.chat.completions.create(
-        model="openai/gpt-oss-20b:free",
+        model="openai/gpt-oss-20b",
         temperature=0,
         messages=[{"role": "user", "content": "Say hello in 5 words."}]
     )
