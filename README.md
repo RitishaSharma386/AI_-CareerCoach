@@ -5,10 +5,10 @@ Navigating the job market is tough, but it doesn't have to be. **AI Career Coach
 ## Demo 
 
 
-![AI Career Coach Resume Upload Screenshot](./resume_upload.png)
-![AI Career Coach Job Search Screenshot](./Job_Search.png)
-![AI Career Coach roadmap_generate Screenshot](./roadmap_generate.png)
-![AI Career Coach coverletter_generate Screenshot](./coverletter_generate.png)
+![AI Career Coach Resume Upload Screenshot](./data/screenshots/resume_upload.png)
+![AI Career Coach Job Search Screenshot](./data/screenshots/Job_Search.png)
+![AI Career Coach roadmap_generate Screenshot](./data/screenshots/roadmap_generate.png)
+![AI Career Coach coverletter_generate Screenshot](./data/screenshots/coverletter_generate.png)
 
 
 
